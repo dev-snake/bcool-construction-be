@@ -28,10 +28,7 @@ async function bootstrap() {
 
   // Global Filter & Interceptor
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(
-    new AuditLogInterceptor(logger),
-    new TransformInterceptor(),
-  );
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   // Versioning
   app.enableVersioning({

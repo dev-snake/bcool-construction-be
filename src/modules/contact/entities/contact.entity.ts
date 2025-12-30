@@ -1,18 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { ContactType } from './contact-type.entity';
 import { ContactStatus } from './contact-status.entity';
 
 @Entity('contacts')
-export class Contact {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Contact extends BaseEntity {
   @Column({ name: 'full_name', length: 255, nullable: true })
   fullName: string;
 
@@ -42,11 +34,4 @@ export class Contact {
   })
   @JoinColumn({ name: 'status_id' })
   status: ContactStatus;
-
-  @Column({
-    name: 'created_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
 }

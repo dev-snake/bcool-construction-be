@@ -1,17 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('activity_logs')
-export class Log {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Log extends BaseEntity {
   @Column({ name: 'user_id', nullable: true })
   userId: string;
 
@@ -30,11 +22,4 @@ export class Log {
 
   @Column({ name: 'ip_address', type: 'inet', nullable: true })
   ipAddress: string;
-
-  @Column({
-    name: 'created_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
 }
