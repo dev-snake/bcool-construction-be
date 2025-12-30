@@ -7,34 +7,25 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
-@Entity('activity_logs')
-export class Log {
+@Entity('login_logs')
+export class LoginLog {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ name: 'user_id', nullable: true })
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.activityLogs, { onDelete: 'SET NULL' })
+  @ManyToOne(() => User, (user) => user.loginLogs, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'user_id' })
   user: User;
-
-  @Column({ length: 100, nullable: true })
-  module: string;
-
-  @Column({ length: 50, nullable: true })
-  action: string;
-
-  @Column({ name: 'record_id', nullable: true })
-  recordId: string;
 
   @Column({ name: 'ip_address', type: 'inet', nullable: true })
   ipAddress: string;
 
   @Column({
-    name: 'created_at',
+    name: 'logged_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  createdAt: Date;
+  loggedAt: Date;
 }

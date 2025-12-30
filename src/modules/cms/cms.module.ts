@@ -2,10 +2,13 @@ import { Module } from '@nestjs/common';
 import { CmsController } from './cms.controller';
 import { CmsService } from './cms.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Cms } from './entities/cms.entity';
+import { Page } from './entities/page.entity';
+import { PageSection } from './entities/page-section.entity';
+import { Banner } from './entities/banner.entity';
+import { Counter } from './entities/counter.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cms])],
+  imports: [TypeOrmModule.forFeature([Page, PageSection, Banner, Counter])],
   controllers: [CmsController],
   providers: [CmsService],
   exports: [CmsService],
