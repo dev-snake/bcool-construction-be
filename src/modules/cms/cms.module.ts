@@ -1,4 +1,13 @@
 import { Module } from '@nestjs/common';
+import { CmsController } from './cms.controller';
+import { CmsService } from './cms.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Cms } from './entities/cms.entity';
 
-@Module({})
+@Module({
+  imports: [TypeOrmModule.forFeature([Cms])],
+  controllers: [CmsController],
+  providers: [CmsService],
+  exports: [CmsService],
+})
 export class CmsModule {}

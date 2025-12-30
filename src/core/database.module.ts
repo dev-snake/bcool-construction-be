@@ -1,0 +1,19 @@
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        ...config.get('database'),
+        autoLoadEntities: true,
+        migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+        migrationsRun: true,
+      }),
+    }),
+  ],
+  exports: [TypeOrmModule],
+})
+export class DatabaseModule {}
