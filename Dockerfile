@@ -1,14 +1,30 @@
-FROM node:20-alpine
+# Base image
+FROM node:22-alpine AS development
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package*.json ./
+COPY yarn.lock ./
+
+RUN npm install
 
 COPY . .
 
-RUN yarn build
+RUN npm run build
 
-EXPOSE 3000
+# Production image
+FROM node:22-alpine AS production
 
-CMD ["yarn", "start:prod"]
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+COPY yarn.lock ./
+
+RUN npm install --only=production
+
+COPY --from=development /usr/src/app/dist ./dist
+
+CMD ["node", "dist/main"]
