@@ -22,16 +22,24 @@ export abstract class BaseService<T extends BaseEntity> {
     return await this.repository.findOne(options);
   }
 
+  async findPaginated(options: FindManyOptions<T>): Promise<[T[], number]> {
+    return await this.repository.findAndCount(options);
+  }
+
   async update(id: string, data: DeepPartial<T>): Promise<T | null> {
+    const exists = await this.findOne({ where: { id } as any });
+    if (!exists) return null;
     await this.repository.update(id, data as any);
     return this.findOne({ where: { id } as any });
   }
 
-  async softDelete(id: string): Promise<void> {
-    await this.repository.softDelete(id);
+  async softDelete(id: string): Promise<boolean> {
+    const result = await this.repository.softDelete(id);
+    return !!result.affected;
   }
 
-  async restore(id: string): Promise<void> {
-    await this.repository.restore(id);
+  async restore(id: string): Promise<boolean> {
+    const result = await this.repository.restore(id);
+    return !!result.affected;
   }
 }

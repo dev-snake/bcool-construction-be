@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import { BaseService } from './base.service';
 import { BaseEntity } from './base.entity';
+import { BaseQueryDto } from '../dto/base-query.dto';
+import { PaginationUtil } from '../utils/pagination.util';
 
 export abstract class BaseController<T extends BaseEntity> {
   constructor(protected readonly service: BaseService<T>) {}
@@ -20,8 +22,18 @@ export abstract class BaseController<T extends BaseEntity> {
   }
 
   @Get()
-  async findAll(@Query() query: any): Promise<T[]> {
-    return await this.service.findAll(query);
+  async findAll(
+    @Query() query: BaseQueryDto,
+  ): Promise<{ items: T[]; total: number }> {
+    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
+    const [items, total] = await this.service.findPaginated({
+      skip,
+      take,
+      order: query.sortBy
+        ? ({ [query.sortBy]: query.order } as any)
+        : ({ createdAt: 'DESC' } as any),
+    });
+    return { items, total };
   }
 
   @Get(':id')
@@ -43,7 +55,11 @@ export abstract class BaseController<T extends BaseEntity> {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
-    return await this.service.softDelete(id);
+  async remove(@Param('id') id: string): Promise<{ success: boolean }> {
+    const success = await this.service.softDelete(id);
+    if (!success) {
+      throw new NotFoundException(`Entity with id ${id} not found`);
+    }
+    return { success };
   }
 }

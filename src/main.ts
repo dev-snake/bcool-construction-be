@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import { Logger } from 'nestjs-pino';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -27,7 +28,10 @@ async function bootstrap() {
 
   // Global Filter & Interceptor
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new AuditLogInterceptor(logger));
+  app.useGlobalInterceptors(
+    new AuditLogInterceptor(logger),
+    new TransformInterceptor(),
+  );
 
   // Versioning
   app.enableVersioning({
@@ -62,10 +66,10 @@ async function bootstrap() {
   await app.listen(port);
 
   console.log(
-    `Application is running on: http://localhost:${port}/${apiPrefix}/v1`,
+    `🚀 Application is running on: http://localhost:${port}/${apiPrefix}/v1`,
   );
   console.log(
-    `Swagger documentation: http://localhost:${port}/${apiPrefix}/docs`,
+    `📚 Swagger documentation: http://localhost:${port}/${apiPrefix}/docs`,
   );
 }
 bootstrap();
