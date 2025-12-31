@@ -87,7 +87,7 @@ describe('Blog Management (e2e)', () => {
       return request(app.getHttpServer())
         .post('/api/v1/blog/categories')
         .send({ name: 'Test Category' })
-        .expect(403); // Due to global PermissionsGuard running before local JwtAuthGuard
+        .expect(401); // Global JwtAuthGuard runs first
     });
 
     it('should create a new category when authenticated as SUPER_ADMIN', async () => {
