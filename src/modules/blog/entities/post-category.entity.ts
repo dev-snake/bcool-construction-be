@@ -1,11 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { Post } from './post.entity';
 
 @Entity('post_categories')
-export class PostCategory {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class PostCategory extends BaseEntity {
   @Column({ length: 255 })
   name: string;
 
