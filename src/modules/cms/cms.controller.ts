@@ -12,6 +12,10 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CmsService } from './cms.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
+import {
+  SystemModule,
+  PermissionAction,
+} from '../../common/enums/permission.enum';
 
 @ApiTags('CMS')
 @Controller('cms')
@@ -36,14 +40,14 @@ export class CmsController {
 
   // ADMIN ENDPOINTS - BANNERS
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('CMS', 'can_view')
+  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.VIEW })
   @Get('banners')
   getBanners() {
     return this.cmsService.findAllBanners();
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('CMS', 'can_create')
+  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.CREATE })
   @Post('banners')
   createBanner(@Body() data: any) {
     return this.cmsService.createBanner(data);
@@ -51,14 +55,14 @@ export class CmsController {
 
   // ADMIN ENDPOINTS - PAGES
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('CMS', 'can_create')
+  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.CREATE })
   @Post('pages')
   createPage(@Body() data: any) {
     return this.cmsService.create(data);
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('CMS', 'can_create')
+  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.CREATE })
   @Post('pages/:id/sections')
   addSection(@Param('id') id: string, @Body() data: any) {
     return this.cmsService.addSection(id, data);

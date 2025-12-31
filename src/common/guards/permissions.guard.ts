@@ -7,7 +7,8 @@ import {
 import { Reflector } from '@nestjs/core';
 import {
   CHECK_PERMISSION_KEY,
-  RequiredPermission,
+  PermissionMetadata,
+  PermissionLogic,
 } from '../decorators/permission.decorator';
 import { User } from '../../modules/users/entities/user.entity';
 
@@ -16,24 +17,23 @@ export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPermission =
-      this.reflector.getAllAndOverride<RequiredPermission>(
-        CHECK_PERMISSION_KEY,
-        [context.getHandler(), context.getClass()],
-      );
+    const metadata = this.reflector.getAllAndOverride<PermissionMetadata>(
+      CHECK_PERMISSION_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
-    if (!requiredPermission) {
+    if (!metadata || !metadata.permissions.length) {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
-    const currentUser = user as User;
+    const request = context.switchToHttp().getRequest();
+    const currentUser = request.user as User;
 
     if (!currentUser || !currentUser.roles) {
       throw new ForbiddenException('Access denied');
     }
 
-    // Super Admin check (optional, but good for UX)
+    // Super Admin check
     const isSuperAdmin = currentUser.roles.some(
       (role) => role.code === 'SUPER_ADMIN',
     );
@@ -41,17 +41,32 @@ export class PermissionsGuard implements CanActivate {
       return true;
     }
 
-    const hasPermission = currentUser.roles.some((role) =>
-      role.permissions?.some(
-        (perm) =>
-          perm.module?.code === requiredPermission.module &&
-          perm[requiredPermission.action] === true,
-      ),
-    );
+    const { permissions, logic } = metadata;
+
+    const checkPermission = (reqPerm: any) => {
+      return currentUser.roles.some((role) =>
+        role.permissions?.some(
+          (perm) =>
+            perm.module?.code === reqPerm.module &&
+            perm[reqPerm.action] === true,
+        ),
+      );
+    };
+
+    let hasPermission = false;
+
+    if (logic === PermissionLogic.AND) {
+      hasPermission = permissions.every((perm) => checkPermission(perm));
+    } else {
+      hasPermission = permissions.some((perm) => checkPermission(perm));
+    }
 
     if (!hasPermission) {
+      const permsStr = permissions
+        .map((p) => `${p.module}:${p.action}`)
+        .join(logic === PermissionLogic.AND ? ' AND ' : ' OR ');
       throw new ForbiddenException(
-        `Insufficient permissions for ${requiredPermission.module}:${requiredPermission.action}`,
+        `Insufficient permissions. Required: ${permsStr}`,
       );
     }
 

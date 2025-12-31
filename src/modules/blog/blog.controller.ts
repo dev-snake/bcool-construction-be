@@ -13,6 +13,10 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { BlogService } from './blog.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
+import {
+  SystemModule,
+  PermissionAction,
+} from '../../common/enums/permission.enum';
 import { BaseQueryDto } from '../../common/dto/base-query.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
 
@@ -44,14 +48,14 @@ export class BlogController {
 
   // ADMIN
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('BLOG', 'can_create')
+  @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.CREATE })
   @Post()
   create(@Body() data: any) {
     return this.blogService.create(data);
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('BLOG', 'can_create')
+  @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.CREATE })
   @Post('categories')
   createCategory(@Body() data: any) {
     return this.blogService.createCategory(data);

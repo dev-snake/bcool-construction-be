@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ContactService } from './contact.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
+import { SystemModule, PermissionAction } from '../../common/enums/permission.enum';
 import { BaseQueryDto } from '../../common/dto/base-query.dto';
 
 @ApiTags('Contact')
@@ -35,7 +36,7 @@ export class ContactController {
 
   // ADMIN
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('CONTACT', 'can_view')
+  @CheckPermission({ module: SystemModule.CONTACT, action: PermissionAction.VIEW })
   @Get()
   @ApiOperation({ summary: 'List all contact submissions' })
   findAll(@Query() query: BaseQueryDto) {
@@ -44,7 +45,7 @@ export class ContactController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('CONTACT', 'can_update')
+  @CheckPermission({ module: SystemModule.CONTACT, action: PermissionAction.UPDATE })
   @Put(':id/status')
   updateStatus(@Param('id') id: string, @Body('statusId') statusId: number) {
     return this.contactService.update(id, { statusId } as any);

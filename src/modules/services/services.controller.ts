@@ -12,6 +12,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ServicesService } from './services.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
+import { SystemModule, PermissionAction } from '../../common/enums/permission.enum';
 
 @ApiTags('Services')
 @Controller('services')
@@ -33,21 +34,21 @@ export class ServicesController {
 
   // ADMIN
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('SERVICES', 'can_create')
+  @CheckPermission({ module: SystemModule.SERVICES, action: PermissionAction.CREATE })
   @Post()
   create(@Body() data: any) {
     return this.servicesService.create(data);
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('SERVICES', 'can_update')
+  @CheckPermission({ module: SystemModule.SERVICES, action: PermissionAction.UPDATE })
   @Put(':id')
   update(@Param('id') id: string, @Body() data: any) {
     return this.servicesService.updateService(id, data);
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('SERVICES', 'can_delete')
+  @CheckPermission({ module: SystemModule.SERVICES, action: PermissionAction.DELETE })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.servicesService.removeService(id);

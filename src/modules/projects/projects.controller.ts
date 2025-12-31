@@ -13,6 +13,7 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
+import { SystemModule, PermissionAction } from '../../common/enums/permission.enum';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -40,7 +41,7 @@ export class ProjectsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('PROJECTS', 'can_create')
+  @CheckPermission({ module: SystemModule.PROJECTS, action: PermissionAction.CREATE })
   @Post()
   @ApiOperation({ summary: 'Create new project' })
   create(@Body() createProjectDto: CreateProjectDto) {
@@ -48,7 +49,7 @@ export class ProjectsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('PROJECTS', 'can_update')
+  @CheckPermission({ module: SystemModule.PROJECTS, action: PermissionAction.UPDATE })
   @Put(':id')
   @ApiOperation({ summary: 'Update project' })
   update(@Param('id') id: string, @Body() data: any) {
@@ -56,7 +57,7 @@ export class ProjectsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @CheckPermission('PROJECTS', 'can_delete')
+  @CheckPermission({ module: SystemModule.PROJECTS, action: PermissionAction.DELETE })
   @Delete(':id')
   @ApiOperation({ summary: 'Soft delete project' })
   remove(@Param('id') id: string) {
