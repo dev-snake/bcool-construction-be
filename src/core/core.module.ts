@@ -8,7 +8,6 @@ import redisConfig from '../config/redis.config';
 
 import { DatabaseModule } from './database.module';
 import { RedisProviderModule } from './redis.module';
-import { LoggerProviderModule } from './logger.module';
 import { SecurityModule } from './security.module';
 
 @Global()
@@ -24,7 +23,6 @@ import { SecurityModule } from './security.module';
     TerminusModule,
     DatabaseModule,
     RedisProviderModule,
-    LoggerProviderModule,
     SecurityModule,
   ],
   exports: [
@@ -33,7 +31,6 @@ import { SecurityModule } from './security.module';
     TerminusModule,
     DatabaseModule,
     RedisProviderModule,
-    LoggerProviderModule,
     SecurityModule,
   ],
 })
