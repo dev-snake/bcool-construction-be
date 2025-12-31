@@ -1,8 +1,16 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { CryptoUtil } from '../../common/utils/crypto.util';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +34,63 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    return this.generateTokens(user);
+  }
+
+  async register(registerDto: RegisterDto) {
+    const user = await this.usersService.create(registerDto);
+    return this.generateTokens(user);
+  }
+
+  private async generateTokens(user: any) {
     const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
       user,
     };
+  }
+
+  async refreshToken(refreshTokenDto: RefreshTokenDto) {
+    try {
+      const payload = this.jwtService.verify(refreshTokenDto.refreshToken);
+      const user = await this.usersService.findOne({
+        where: { id: payload.sub },
+      });
+      if (!user) {
+        throw new UnauthorizedException();
+      }
+      return this.generateTokens(user);
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
+    const user = await this.usersService.findOne({
+      where: { id: userId },
+      select: ['id', 'passwordHash'],
+    } as any);
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const isMatch = await CryptoUtil.compare(
+      changePasswordDto.oldPassword,
+      user.passwordHash,
+    );
+    if (!isMatch) {
+      throw new BadRequestException('Old password does not match');
+    }
+
+    const passwordHash = await CryptoUtil.hash(changePasswordDto.newPassword);
+    await this.usersService.update(userId, { passwordHash } as any);
+
+    return { message: 'Password changed successfully' };
+  }
+
+  async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
+    return this.usersService.update(userId, updateProfileDto);
   }
 }
