@@ -6,6 +6,14 @@ import { Page } from './entities/page.entity';
 import { PageSection } from './entities/page-section.entity';
 import { Banner } from './entities/banner.entity';
 import { Counter } from './entities/counter.entity';
+import { CreateBannerDto, UpdateBannerDto } from './dto/banner.dto';
+import { CreateCounterDto, UpdateCounterDto } from './dto/counter.dto';
+import {
+  CreatePageDto,
+  UpdatePageDto,
+  CreatePageSectionDto,
+  UpdatePageSectionDto,
+} from './dto/page.dto';
 
 @Injectable()
 export class CmsService extends BaseService<Page> {
@@ -22,47 +30,110 @@ export class CmsService extends BaseService<Page> {
     super(pageRepository);
   }
 
-  // Page Sections
-  async addSection(pageId: string, data: any) {
-    const page = await this.findOne({ where: { id: pageId } as any });
+  // PAGES
+  async findAllPages() {
+    return this.pageRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findPageBySlug(slug: string) {
+    const page = await this.pageRepository.findOne({
+      where: { slug, isPublished: true },
+      relations: ['sections'],
+    });
+    if (!page) throw new NotFoundException('Page not found');
+    page.sections.sort((a, b) => a.sortOrder - b.sortOrder);
+    return page;
+  }
+
+  async findPageById(id: string) {
+    const page = await this.pageRepository.findOne({
+      where: { id } as any,
+      relations: ['sections'],
+    });
+    if (!page) throw new NotFoundException('Page not found');
+    page.sections.sort((a, b) => a.sortOrder - b.sortOrder);
+    return page;
+  }
+
+  async createPage(dto: CreatePageDto) {
+    const page = this.pageRepository.create(dto);
+    return this.pageRepository.save(page);
+  }
+
+  async updatePage(id: string, dto: UpdatePageDto) {
+    await this.pageRepository.update(id, dto);
+    return this.findPageById(id);
+  }
+
+  // PAGE SECTIONS
+  async addSection(pageId: string, data: CreatePageSectionDto) {
+    const page = await this.pageRepository.findOne({
+      where: { id: pageId } as any,
+    });
     if (!page) throw new NotFoundException('Page not found');
     const section = this.sectionRepository.create({ ...data, pageId });
     return this.sectionRepository.save(section);
   }
 
-  async updateSection(id: string, data: any) {
+  async updateSection(id: string, data: UpdatePageSectionDto) {
     await this.sectionRepository.update(id, data);
     return this.sectionRepository.findOne({ where: { id } as any });
   }
 
   async removeSection(id: string) {
-    await this.sectionRepository.delete(id);
+    return this.sectionRepository.delete(id);
   }
 
-  // Banners
-  async findAllBanners() {
+  // BANNERS
+  async findAllBanners(admin = false) {
+    const where: any = {};
+    if (!admin) where.isActive = true;
+
     return this.bannerRepository.find({
-      where: { isActive: true },
+      where,
       order: { sortOrder: 'ASC' },
     });
   }
 
-  async createBanner(data: any) {
-    const banner = this.bannerRepository.create(data);
+  async createBanner(dto: CreateBannerDto) {
+    const banner = this.bannerRepository.create(dto);
     return this.bannerRepository.save(banner);
   }
 
-  // Counters
-  async findAllCounters() {
+  async updateBanner(id: string, dto: UpdateBannerDto) {
+    await this.bannerRepository.update(id, dto);
+    return this.bannerRepository.findOne({ where: { id } as any });
+  }
+
+  async removeBanner(id: string) {
+    return this.bannerRepository.delete(id);
+  }
+
+  // COUNTERS
+  async findAllCounters(admin = false) {
+    const where: any = {};
+    if (!admin) where.isActive = true;
+
     return this.counterRepository.find({
-      where: { isActive: true },
+      where,
       order: { sortOrder: 'ASC' },
     });
   }
 
-  async createCounter(data: any) {
-    const counter = this.counterRepository.create(data);
+  async createCounter(dto: CreateCounterDto) {
+    const counter = this.counterRepository.create(dto);
     return this.counterRepository.save(counter);
+  }
+
+  async updateCounter(id: string, dto: UpdateCounterDto) {
+    await this.counterRepository.update(id, dto);
+    return this.counterRepository.findOne({ where: { id } as any });
+  }
+
+  async removeCounter(id: string) {
+    return this.counterRepository.delete(id);
   }
 
   // Aggregate Home Data
@@ -72,16 +143,20 @@ export class CmsService extends BaseService<Page> {
       this.findAllCounters(),
     ]);
 
-    // About page short intro (slug could be 'home-intro' or part of 'home' page)
     const homePage = await this.pageRepository.findOne({
-      where: { slug: 'home' },
+      where: { slug: 'home', isPublished: true },
       relations: ['sections'],
     });
+
+    if (homePage) {
+      homePage.sections = homePage.sections
+        .filter((s) => s.isVisible)
+        .sort((a, b) => a.sortOrder - b.sortOrder);
+    }
 
     return {
       banners,
       counters,
-      intro: homePage?.sections.find((s) => s.isVisible) || null,
       sections: homePage?.sections || [],
     };
   }
