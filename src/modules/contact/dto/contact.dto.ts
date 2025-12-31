@@ -23,15 +23,15 @@ export class CreateContactDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  typeId?: number;
+  @IsString()
+  typeId?: string;
 }
 
 export class UpdateContactDto {
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  statusId?: number;
+  @IsString()
+  statusId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -52,13 +52,13 @@ export class ContactQueryDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  typeId?: number;
+  @IsString()
+  typeId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  statusId?: number;
+  @IsString()
+  statusId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

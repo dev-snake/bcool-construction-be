@@ -7,11 +7,10 @@ import {
   Put,
   Delete,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { ContactService } from './contact.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from '../../common/decorators/public.decorator';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
 import {
   SystemModule,
@@ -29,12 +28,14 @@ export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   // PUBLIC
+  @Public()
   @Post('submit')
   @ApiOperation({ summary: 'Submit contact form' })
   submit(@Body() data: CreateContactDto) {
     return this.contactService.submitForm(data);
   }
 
+  @Public()
   @Get('types')
   @ApiOperation({ summary: 'Get contact types' })
   getTypes() {
@@ -43,7 +44,6 @@ export class ContactController {
 
   // ADMIN
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.CONTACT,
     action: PermissionAction.VIEW,
@@ -55,7 +55,6 @@ export class ContactController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.CONTACT,
     action: PermissionAction.VIEW,
@@ -67,7 +66,6 @@ export class ContactController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.CONTACT,
     action: PermissionAction.UPDATE,
@@ -79,7 +77,6 @@ export class ContactController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.CONTACT,
     action: PermissionAction.DELETE,

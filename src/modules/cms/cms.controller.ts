@@ -12,6 +12,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CmsService } from './cms.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import {
   SystemModule,
   PermissionAction,
@@ -31,12 +32,14 @@ export class CmsController {
   constructor(private readonly cmsService: CmsService) {}
 
   // PUBLIC ENDPOINTS
+  @Public()
   @Get('home')
   @ApiOperation({ summary: 'Get aggregated data for home page' })
   getHomeData() {
     return this.cmsService.getHomeData();
   }
 
+  @Public()
   @Get('page/:slug')
   @ApiOperation({ summary: 'Get page by slug' })
   getPageBySlug(@Param('slug') slug: string) {
