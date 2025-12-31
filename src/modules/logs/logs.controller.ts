@@ -15,7 +15,6 @@ export class LogsController {
   constructor(private readonly logsService: LogsService) {}
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({ module: SystemModule.LOGS, action: PermissionAction.VIEW })
   @Get('activity')
   @ApiOperation({ summary: 'Admin: Get all activity logs' })

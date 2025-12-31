@@ -16,31 +16,34 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { User } from '../users/entities/user.entity';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Login and get JWT token' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
+  @Public()
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
+  @Public()
   @Post('refresh-token')
   @ApiOperation({ summary: 'Refresh access token' })
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get('profile')
   @ApiOperation({ summary: 'Get current user profile' })
@@ -48,7 +51,6 @@ export class AuthController {
     return user;
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch('change-password')
   @ApiOperation({ summary: 'Change current user password' })

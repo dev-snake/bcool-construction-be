@@ -43,7 +43,6 @@ export class MediaController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.MEDIA,
     action: PermissionAction.CREATE,
@@ -55,7 +54,6 @@ export class MediaController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.MEDIA,
     action: PermissionAction.DELETE,

@@ -20,6 +20,7 @@ import {
 import { PostQueryDto, CreatePostDto, UpdatePostDto } from './dto/blog-post.dto';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/blog-category.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('Blog')
 @Controller('blog')
@@ -28,6 +29,7 @@ export class BlogController {
 
   // --- PUBLIC ---
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all published posts' })
   async findAll(@Query() query: PostQueryDto) {
@@ -36,12 +38,14 @@ export class BlogController {
     return { items, total };
   }
 
+  @Public()
   @Get('categories')
   @ApiOperation({ summary: 'Get all post categories' })
   getCategories() {
     return this.blogService.findAllCategories();
   }
 
+  @Public()
   @Get(':slug')
   @ApiOperation({ summary: 'Get post details by slug' })
   findOne(@Param('slug') slug: string) {
@@ -51,7 +55,6 @@ export class BlogController {
   // --- ADMIN POSTS ---
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.VIEW })
   @Get('admin/posts')
   @ApiOperation({ summary: 'Admin: Get all posts with filtering' })

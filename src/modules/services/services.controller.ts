@@ -24,6 +24,7 @@ import {
   CreateServiceContentDto,
   CreateServiceMediaDto,
 } from './dto/service.dto';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('Services')
 @Controller('services')
@@ -32,12 +33,14 @@ export class ServicesController {
 
   // --- PUBLIC ---
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all top-level services (hierarchical)' })
   findAll(@Query() query: ServiceQueryDto) {
     return this.servicesService.findHierarchical(query);
   }
 
+  @Public()
   @Get(':slug')
   @ApiOperation({ summary: 'Get service details by slug' })
   findOne(@Param('slug') slug: string) {
@@ -47,7 +50,6 @@ export class ServicesController {
   // --- ADMIN SERVICES ---
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.CREATE,
@@ -59,7 +61,6 @@ export class ServicesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.UPDATE,
@@ -71,7 +72,6 @@ export class ServicesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.DELETE,
@@ -85,7 +85,6 @@ export class ServicesController {
   // --- ADMIN SERVICE CONTENT ---
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.UPDATE,
@@ -97,7 +96,6 @@ export class ServicesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.UPDATE,
@@ -112,7 +110,6 @@ export class ServicesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.UPDATE,
@@ -126,7 +123,6 @@ export class ServicesController {
   // --- ADMIN SERVICE MEDIA ---
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.UPDATE,
@@ -138,7 +134,6 @@ export class ServicesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.UPDATE,
@@ -153,7 +148,6 @@ export class ServicesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.SERVICES,
     action: PermissionAction.UPDATE,
