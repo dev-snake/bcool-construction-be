@@ -5,10 +5,12 @@ import {
   OneToMany,
   JoinColumn,
   Index,
+  ManyToMany,
 } from 'typeorm';
 import { BaseEntity } from '../../../common/base/base.entity';
 import { ServiceContent } from './service-content.entity';
 import { ServiceMedia } from './service-media.entity';
+import { Project } from '../../projects/entities/project.entity';
 
 @Entity('services')
 export class Service extends BaseEntity {
@@ -51,4 +53,7 @@ export class Service extends BaseEntity {
 
   @OneToMany(() => ServiceMedia, (media) => media.service)
   media: ServiceMedia[];
+
+  @ManyToMany(() => Project, (project) => project.services)
+  projects: Project[];
 }

@@ -12,6 +12,7 @@ import { BlogModule } from './modules/blog/blog.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { MediaModule } from './modules/media/media.module';
 import { LogsModule } from './modules/logs/logs.module';
+import { ProjectsModule } from './modules/projects/projects.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { LogsModule } from './modules/logs/logs.module';
     ContactModule,
     MediaModule,
     LogsModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
