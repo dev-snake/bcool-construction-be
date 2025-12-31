@@ -1,17 +1,14 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('login_logs')
-export class LoginLog {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class LoginLog extends BaseEntity {
   @Column({ name: 'user_id', nullable: true })
   userId: string;
 
@@ -21,11 +18,4 @@ export class LoginLog {
 
   @Column({ name: 'ip_address', type: 'inet', nullable: true })
   ipAddress: string;
-
-  @Column({
-    name: 'logged_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  loggedAt: Date;
 }
