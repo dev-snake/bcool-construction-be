@@ -53,7 +53,7 @@ export class ContactStatusesController {
   @Put(':id')
   @ApiOperation({ summary: 'Update contact status' })
   update(@Param('id') id: string, @Body() dto: UpdateContactStatusDto) {
-    return this.contactService.updateStatus(+id, dto);
+    return this.contactService.updateStatus(id, dto);
   }
 
   @ApiBearerAuth()
@@ -65,6 +65,6 @@ export class ContactStatusesController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete contact status' })
   remove(@Param('id') id: string) {
-    return this.contactService.removeStatus(+id);
+    return this.contactService.removeStatus(id);
   }
 }

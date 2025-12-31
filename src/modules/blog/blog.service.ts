@@ -1,11 +1,19 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThanOrEqual, Like } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Post } from './entities/post.entity';
 import { PostCategory } from './entities/post-category.entity';
 import { StringUtil } from '../../common/utils/string.util';
-import { PostQueryDto, CreatePostDto, UpdatePostDto } from './dto/blog-post.dto';
+import {
+  PostQueryDto,
+  CreatePostDto,
+  UpdatePostDto,
+} from './dto/blog-post.dto';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/blog-category.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
 
@@ -74,7 +82,7 @@ export class BlogService extends BaseService<Post> {
 
   async createPost(data: CreatePostDto) {
     const slug = data.slug || StringUtil.slugify(data.title);
-    
+
     const existing = await this.postRepository.findOne({ where: { slug } });
     if (existing) {
       throw new ConflictException('Slug already exists');
@@ -97,7 +105,9 @@ export class BlogService extends BaseService<Post> {
     }
 
     if (data.slug && data.slug !== post.slug) {
-      const existing = await this.postRepository.findOne({ where: { slug: data.slug } });
+      const existing = await this.postRepository.findOne({
+        where: { slug: data.slug },
+      });
       if (existing) throw new ConflictException('Slug already exists');
     }
 
@@ -127,7 +137,7 @@ export class BlogService extends BaseService<Post> {
 
   async createCategory(data: CreateCategoryDto) {
     const slug = data.slug || StringUtil.slugify(data.name);
-    
+
     const existing = await this.categoryRepository.findOne({ where: { slug } });
     if (existing) {
       throw new ConflictException('Category slug already exists');
@@ -142,13 +152,15 @@ export class BlogService extends BaseService<Post> {
 
   async updateCategory(id: string, data: UpdateCategoryDto) {
     const category = await this.findCategoryById(id);
-    
+
     if (data.name && !data.slug) {
       data.slug = StringUtil.slugify(data.name);
     }
 
     if (data.slug && data.slug !== category.slug) {
-      const existing = await this.categoryRepository.findOne({ where: { slug: data.slug } });
+      const existing = await this.categoryRepository.findOne({
+        where: { slug: data.slug },
+      });
       if (existing) throw new ConflictException('Category slug already exists');
     }
 
@@ -159,7 +171,9 @@ export class BlogService extends BaseService<Post> {
   async deleteCategory(id: string) {
     const category = await this.findCategoryById(id);
     // Check if category has posts
-    const postsCount = await this.postRepository.count({ where: { categoryId: id } });
+    const postsCount = await this.postRepository.count({
+      where: { categoryId: id },
+    });
     if (postsCount > 0) {
       throw new ConflictException('Cannot delete category with posts');
     }

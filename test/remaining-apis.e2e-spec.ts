@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { JwtService } from '@nestjs/jwt';
@@ -17,8 +21,10 @@ describe('Remaining API Modules (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
+
     app.setGlobalPrefix('api');
     app.enableVersioning({
       type: VersioningType.URI,
@@ -32,7 +38,9 @@ describe('Remaining API Modules (e2e)', () => {
     const roleRepository = app.get(getRepositoryToken(Role));
 
     // Ensure SUPER_ADMIN role exists
-    let adminRole = await roleRepository.findOne({ where: { code: 'SUPER_ADMIN' } });
+    let adminRole = await roleRepository.findOne({
+      where: { code: 'SUPER_ADMIN' },
+    });
     if (!adminRole) {
       adminRole = roleRepository.create({
         code: 'SUPER_ADMIN',
@@ -42,23 +50,23 @@ describe('Remaining API Modules (e2e)', () => {
     }
 
     // Create/Update Admin User
-    let admin = await userRepository.findOne({ 
+    let admin = await userRepository.findOne({
       where: { email: 'admin-e2e@test.com' },
-      relations: ['roles']
+      relations: ['roles'],
     });
-    
+
     if (!admin) {
-        admin = userRepository.create({
-            email: 'admin-e2e@test.com',
-            passwordHash: 'dummy',
-            isActive: true,
-            isLocked: false,
-            roles: [adminRole]
-        });
-        await userRepository.save(admin);
+      admin = userRepository.create({
+        email: 'admin-e2e@test.com',
+        passwordHash: 'dummy',
+        isActive: true,
+        isLocked: false,
+        roles: [adminRole],
+      });
+      await userRepository.save(admin);
     } else {
-        admin.roles = [adminRole];
-        await userRepository.save(admin);
+      admin.roles = [adminRole];
+      await userRepository.save(admin);
     }
 
     adminToken = jwtService.sign({ sub: admin.id, email: admin.email });
@@ -66,7 +74,7 @@ describe('Remaining API Modules (e2e)', () => {
 
   afterAll(async () => {
     // Wait a bit for audit logs to finish before closing
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     if (app) {
       await app.close();
     }
@@ -74,9 +82,7 @@ describe('Remaining API Modules (e2e)', () => {
 
   describe('Projects Module', () => {
     it('GET /projects (Public)', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/projects')
-        .expect(200);
+      return request(app.getHttpServer()).get('/api/v1/projects').expect(200);
     });
 
     it('GET /projects/featured (Public)', () => {
@@ -96,9 +102,9 @@ describe('Remaining API Modules (e2e)', () => {
       return request(app.getHttpServer())
         .post('/api/v1/projects')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ 
-          title: 'E2E Test Project ' + Date.now(), 
-          slug: 'e2e-test-project-' + Date.now()
+        .send({
+          title: 'E2E Test Project ' + Date.now(),
+          slug: 'e2e-test-project-' + Date.now(),
         })
         .expect(201);
     });
@@ -115,11 +121,11 @@ describe('Remaining API Modules (e2e)', () => {
     it('POST /contact/submit (Public)', () => {
       return request(app.getHttpServer())
         .post('/api/v1/contact/submit')
-        .send({ 
+        .send({
           fullName: 'Test User',
           phone: '+1234567890',
           email: 'test@example.com',
-          message: 'Test message'
+          message: 'Test message',
         })
         .expect(201);
     });
@@ -138,17 +144,13 @@ describe('Remaining API Modules (e2e)', () => {
     });
 
     it('GET /contact (Guest Denied)', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/contact')
-        .expect(401);
+      return request(app.getHttpServer()).get('/api/v1/contact').expect(401);
     });
   });
 
   describe('CMS Module', () => {
     it('GET /cms/home (Public)', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/cms/home')
-        .expect(200);
+      return request(app.getHttpServer()).get('/api/v1/cms/home').expect(200);
     });
 
     it('GET /cms/banners (Admin Only)', () => {
@@ -162,9 +164,9 @@ describe('Remaining API Modules (e2e)', () => {
       return request(app.getHttpServer())
         .post('/api/v1/cms/banners')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ 
+        .send({
           title: 'Test Banner',
-          imageUrl: 'https://example.com/banner.jpg'
+          imageUrl: 'https://example.com/banner.jpg',
         })
         .expect(201);
     });
@@ -180,10 +182,10 @@ describe('Remaining API Modules (e2e)', () => {
       return request(app.getHttpServer())
         .post('/api/v1/cms/pages')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ 
+        .send({
           title: 'Test Page',
           slug: 'test-page-' + Date.now(),
-          isPublished: true
+          isPublished: true,
         })
         .expect(201);
     });
@@ -198,9 +200,7 @@ describe('Remaining API Modules (e2e)', () => {
     });
 
     it('GET /roles (Guest Denied)', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/roles')
-        .expect(401);
+      return request(app.getHttpServer()).get('/api/v1/roles').expect(401);
     });
 
     it('GET /roles/modules/all (Admin Only)', () => {
@@ -214,9 +214,9 @@ describe('Remaining API Modules (e2e)', () => {
       return request(app.getHttpServer())
         .post('/api/v1/roles')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ 
+        .send({
           code: 'TEST_ROLE_' + Date.now(),
-          name: 'Test Role ' + Date.now()
+          name: 'Test Role ' + Date.now(),
         })
         .expect(201);
     });

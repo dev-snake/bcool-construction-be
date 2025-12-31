@@ -58,7 +58,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.CREATE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.CREATE,
+  })
   @Post('banners')
   @ApiOperation({ summary: 'Admin: Create new banner' })
   createBanner(@Body() dto: CreateBannerDto) {
@@ -67,7 +70,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.UPDATE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.UPDATE,
+  })
   @Put('banners/:id')
   @ApiOperation({ summary: 'Admin: Update banner' })
   updateBanner(@Param('id') id: string, @Body() dto: UpdateBannerDto) {
@@ -76,7 +82,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.DELETE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.DELETE,
+  })
   @Delete('banners/:id')
   @ApiOperation({ summary: 'Admin: Delete banner' })
   removeBanner(@Param('id') id: string) {
@@ -95,7 +104,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.CREATE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.CREATE,
+  })
   @Post('counters')
   @ApiOperation({ summary: 'Admin: Create new counter' })
   createCounter(@Body() dto: CreateCounterDto) {
@@ -104,7 +116,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.UPDATE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.UPDATE,
+  })
   @Put('counters/:id')
   @ApiOperation({ summary: 'Admin: Update counter' })
   updateCounter(@Param('id') id: string, @Body() dto: UpdateCounterDto) {
@@ -113,7 +128,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.DELETE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.DELETE,
+  })
   @Delete('counters/:id')
   @ApiOperation({ summary: 'Admin: Delete counter' })
   removeCounter(@Param('id') id: string) {
@@ -141,7 +159,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.CREATE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.CREATE,
+  })
   @Post('pages')
   @ApiOperation({ summary: 'Admin: Create new page' })
   createPage(@Body() dto: CreatePageDto) {
@@ -150,7 +171,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.UPDATE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.UPDATE,
+  })
   @Put('pages/:id')
   @ApiOperation({ summary: 'Admin: Update page' })
   updatePage(@Param('id') id: string, @Body() dto: UpdatePageDto) {
@@ -159,7 +183,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.DELETE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.DELETE,
+  })
   @Delete('pages/:id')
   @ApiOperation({ summary: 'Admin: Delete page' })
   removePage(@Param('id') id: string) {
@@ -169,7 +196,10 @@ export class CmsController {
   // ADMIN ENDPOINTS - SECTIONS
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.CREATE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.CREATE,
+  })
   @Post('pages/:id/sections')
   @ApiOperation({ summary: 'Admin: Add section to page' })
   addSection(@Param('id') id: string, @Body() dto: CreatePageSectionDto) {
@@ -178,7 +208,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.UPDATE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.UPDATE,
+  })
   @Put('sections/:id')
   @ApiOperation({ summary: 'Admin: Update section' })
   updateSection(@Param('id') id: string, @Body() dto: UpdatePageSectionDto) {
@@ -187,7 +220,10 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.DELETE })
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.DELETE,
+  })
   @Delete('sections/:id')
   @ApiOperation({ summary: 'Admin: Delete section' })
   removeSection(@Param('id') id: string) {

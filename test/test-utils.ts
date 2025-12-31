@@ -9,7 +9,7 @@ export class TestUtils {
     // but for e2e tests of the API logic, a signed token often suffices
     // if the guard only checks the token.
     // However, if the guard fetches the user from DB, we need a real user.
-    
+
     // Let's assume for now we sign a payload that matches what our JwtStrategy expects.
     const payload = { sub: 'admin-id', email: 'admin@example.com' };
     return jwtService.sign(payload);

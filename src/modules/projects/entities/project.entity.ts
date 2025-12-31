@@ -37,7 +37,9 @@ export class Project extends BaseEntity {
   @Column({ name: 'project_type_id', nullable: true })
   projectTypeId: string;
 
-  @ManyToOne(() => ProjectType, (type) => type.projects, { onDelete: 'SET NULL' })
+  @ManyToOne(() => ProjectType, (type) => type.projects, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'project_type_id' })
   projectType: ProjectType;
 

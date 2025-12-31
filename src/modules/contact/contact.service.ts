@@ -47,14 +47,7 @@ export class ContactService extends BaseService<Contact> {
 
   // ADMIN - MANAGE SUBMISSIONS
   async findPaginatedSubmissions(query: ContactQueryDto) {
-    const {
-      page = 1,
-      limit = 10,
-      typeId,
-      statusId,
-      email,
-      fullName,
-    } = query;
+    const { page = 1, limit = 10, typeId, statusId, email, fullName } = query;
     const where: any = {};
 
     if (typeId) where.typeId = typeId;
@@ -105,12 +98,12 @@ export class ContactService extends BaseService<Contact> {
     return this.typeRepository.save(type);
   }
 
-  async updateType(id: number, dto: UpdateContactTypeDto) {
+  async updateType(id: string, dto: UpdateContactTypeDto) {
     await this.typeRepository.update(id, dto);
     return this.typeRepository.findOne({ where: { id } });
   }
 
-  async removeType(id: number) {
+  async removeType(id: string) {
     return this.typeRepository.delete(id);
   }
 
@@ -124,12 +117,12 @@ export class ContactService extends BaseService<Contact> {
     return this.statusRepository.save(status);
   }
 
-  async updateStatus(id: number, dto: UpdateContactStatusDto) {
+  async updateStatus(id: string, dto: UpdateContactStatusDto) {
     await this.statusRepository.update(id, dto);
     return this.statusRepository.findOne({ where: { id } });
   }
 
-  async removeStatus(id: number) {
+  async removeStatus(id: string) {
     return this.statusRepository.delete(id);
   }
 }

@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { JwtService } from '@nestjs/jwt';
@@ -17,8 +21,10 @@ describe('Blog Management (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
+
     // Match main.ts configuration
     app.setGlobalPrefix('api');
     app.enableVersioning({
@@ -33,7 +39,9 @@ describe('Blog Management (e2e)', () => {
     const roleRepository = app.get(getRepositoryToken(Role));
 
     // Ensure SUPER_ADMIN role exists
-    let adminRole = await roleRepository.findOne({ where: { code: 'SUPER_ADMIN' } });
+    let adminRole = await roleRepository.findOne({
+      where: { code: 'SUPER_ADMIN' },
+    });
     if (!adminRole) {
       adminRole = roleRepository.create({
         code: 'SUPER_ADMIN',
@@ -43,23 +51,23 @@ describe('Blog Management (e2e)', () => {
     }
 
     // Create/Update Admin User
-    let admin = await userRepository.findOne({ 
+    let admin = await userRepository.findOne({
       where: { email: 'admin-e2e@test.com' },
-      relations: ['roles']
+      relations: ['roles'],
     });
-    
+
     if (!admin) {
-        admin = userRepository.create({
-            email: 'admin-e2e@test.com',
-            passwordHash: 'dummy',
-            isActive: true,
-            isLocked: false,
-            roles: [adminRole]
-        });
-        await userRepository.save(admin);
+      admin = userRepository.create({
+        email: 'admin-e2e@test.com',
+        passwordHash: 'dummy',
+        isActive: true,
+        isLocked: false,
+        roles: [adminRole],
+      });
+      await userRepository.save(admin);
     } else {
-        admin.roles = [adminRole];
-        await userRepository.save(admin);
+      admin.roles = [adminRole];
+      await userRepository.save(admin);
     }
 
     adminToken = jwtService.sign({ sub: admin.id, email: admin.email });
@@ -97,12 +105,14 @@ describe('Blog Management (e2e)', () => {
         .post('/api/v1/blog/categories')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ name: categoryName });
-      
+
       // If it fails with 403, we know it's the guard order issue
       if (response.status === 403) {
-          console.warn('Warning: Request failed with 403. This is likely due to PermissionsGuard (global) running before JwtAuthGuard (local).');
+        console.warn(
+          'Warning: Request failed with 403. This is likely due to PermissionsGuard (global) running before JwtAuthGuard (local).',
+        );
       }
-      
+
       expect(response.status).toBe(201);
       expect(response.body.name).toBe(categoryName);
     });

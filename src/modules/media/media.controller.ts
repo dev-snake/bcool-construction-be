@@ -26,7 +26,10 @@ export class MediaController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.MEDIA, action: PermissionAction.VIEW })
+  @CheckPermission({
+    module: SystemModule.MEDIA,
+    action: PermissionAction.VIEW,
+  })
   @Get()
   @ApiOperation({ summary: 'Admin: Get all media files' })
   findAll(@Query() query: MediaQueryDto) {
@@ -35,7 +38,10 @@ export class MediaController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.MEDIA, action: PermissionAction.VIEW })
+  @CheckPermission({
+    module: SystemModule.MEDIA,
+    action: PermissionAction.VIEW,
+  })
   @Get(':id')
   @ApiOperation({ summary: 'Admin: Get media details' })
   findOne(@Param('id') id: string) {

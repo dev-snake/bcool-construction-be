@@ -27,7 +27,10 @@ export class LogsService extends BaseService<Log> {
     if (query.action) where.action = query.action;
 
     if (query.fromDate && query.toDate) {
-      where.createdAt = Between(new Date(query.fromDate), new Date(query.toDate));
+      where.createdAt = Between(
+        new Date(query.fromDate),
+        new Date(query.toDate),
+      );
     } else if (query.fromDate) {
       where.createdAt = MoreThanOrEqual(new Date(query.fromDate));
     } else if (query.toDate) {
@@ -62,7 +65,10 @@ export class LogsService extends BaseService<Log> {
     if (query.userId) where.userId = query.userId;
 
     if (query.fromDate && query.toDate) {
-      where.createdAt = Between(new Date(query.fromDate), new Date(query.toDate));
+      where.createdAt = Between(
+        new Date(query.fromDate),
+        new Date(query.toDate),
+      );
     } else if (query.fromDate) {
       where.createdAt = MoreThanOrEqual(new Date(query.fromDate));
     } else if (query.toDate) {

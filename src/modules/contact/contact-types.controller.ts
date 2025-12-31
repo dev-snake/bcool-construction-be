@@ -53,7 +53,7 @@ export class ContactTypesController {
   @Put(':id')
   @ApiOperation({ summary: 'Update contact type' })
   update(@Param('id') id: string, @Body() dto: UpdateContactTypeDto) {
-    return this.contactService.updateType(+id, dto);
+    return this.contactService.updateType(id, dto);
   }
 
   @ApiBearerAuth()
@@ -65,6 +65,6 @@ export class ContactTypesController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete contact type' })
   remove(@Param('id') id: string) {
-    return this.contactService.removeType(+id);
+    return this.contactService.removeType(id);
   }
 }

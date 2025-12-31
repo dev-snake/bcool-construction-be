@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, In, Like } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
@@ -11,8 +15,14 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
 import { Service } from '../services/entities/service.entity';
-import { CreateProjectTypeDto, UpdateProjectTypeDto } from './dto/project-type.dto';
-import { CreateProjectStatusDto, UpdateProjectStatusDto } from './dto/project-status.dto';
+import {
+  CreateProjectTypeDto,
+  UpdateProjectTypeDto,
+} from './dto/project-type.dto';
+import {
+  CreateProjectStatusDto,
+  UpdateProjectStatusDto,
+} from './dto/project-status.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
 
 @Injectable()
@@ -36,9 +46,11 @@ export class ProjectsService extends BaseService<Project> {
 
   async createProject(createProjectDto: CreateProjectDto) {
     const { serviceIds, contents, media, ...projectData } = createProjectDto;
-    
+
     // Check if slug already exists
-    const existing = await this.projectRepository.findOne({ where: { slug: projectData.slug } });
+    const existing = await this.projectRepository.findOne({
+      where: { slug: projectData.slug },
+    });
     if (existing) {
       throw new ConflictException('Slug already exists');
     }
@@ -89,7 +101,9 @@ export class ProjectsService extends BaseService<Project> {
     if (!project) throw new NotFoundException('Project not found');
 
     if (projectData.slug && projectData.slug !== project.slug) {
-      const existing = await this.projectRepository.findOne({ where: { slug: projectData.slug } });
+      const existing = await this.projectRepository.findOne({
+        where: { slug: projectData.slug },
+      });
       if (existing) {
         throw new ConflictException('Slug already exists');
       }
@@ -127,7 +141,7 @@ export class ProjectsService extends BaseService<Project> {
   async findAllProjects(query: ProjectQueryDto) {
     const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
     const where: any = {};
-    
+
     if (query.typeId) where.projectTypeId = query.typeId;
     if (query.statusId) where.statusId = query.statusId;
     if (query.featured !== undefined) where.isFeatured = query.featured;

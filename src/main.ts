@@ -6,7 +6,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -64,4 +63,4 @@ async function bootstrap() {
     `📚 Swagger documentation: http://localhost:${port}/${apiPrefix}/docs`,
   );
 }
-bootstrap();
+void bootstrap();

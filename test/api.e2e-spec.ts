@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { JwtService } from '@nestjs/jwt';
@@ -17,8 +21,10 @@ describe('API Management (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
+
     app.setGlobalPrefix('api');
     app.enableVersioning({
       type: VersioningType.URI,
@@ -32,7 +38,9 @@ describe('API Management (e2e)', () => {
     const roleRepository = app.get(getRepositoryToken(Role));
 
     // Ensure SUPER_ADMIN role exists
-    let adminRole = await roleRepository.findOne({ where: { code: 'SUPER_ADMIN' } });
+    let adminRole = await roleRepository.findOne({
+      where: { code: 'SUPER_ADMIN' },
+    });
     if (!adminRole) {
       adminRole = roleRepository.create({
         code: 'SUPER_ADMIN',
@@ -42,23 +50,23 @@ describe('API Management (e2e)', () => {
     }
 
     // Create/Update Admin User
-    let admin = await userRepository.findOne({ 
+    let admin = await userRepository.findOne({
       where: { email: 'admin-e2e@test.com' },
-      relations: ['roles']
+      relations: ['roles'],
     });
-    
+
     if (!admin) {
-        admin = userRepository.create({
-            email: 'admin-e2e@test.com',
-            passwordHash: 'dummy',
-            isActive: true,
-            isLocked: false,
-            roles: [adminRole]
-        });
-        await userRepository.save(admin);
+      admin = userRepository.create({
+        email: 'admin-e2e@test.com',
+        passwordHash: 'dummy',
+        isActive: true,
+        isLocked: false,
+        roles: [adminRole],
+      });
+      await userRepository.save(admin);
     } else {
-        admin.roles = [adminRole];
-        await userRepository.save(admin);
+      admin.roles = [adminRole];
+      await userRepository.save(admin);
     }
 
     adminToken = jwtService.sign({ sub: admin.id, email: admin.email });
@@ -66,7 +74,7 @@ describe('API Management (e2e)', () => {
 
   afterAll(async () => {
     // Wait a bit for audit logs to finish before closing
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     if (app) {
       await app.close();
     }

@@ -8,7 +8,12 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ContactService } from './contact.service';
 import { Public } from '../../common/decorators/public.decorator';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
@@ -49,7 +54,9 @@ export class ContactController {
     action: PermissionAction.VIEW,
   })
   @Get()
-  @ApiOperation({ summary: 'List all contact submissions with pagination and filters' })
+  @ApiOperation({
+    summary: 'List all contact submissions with pagination and filters',
+  })
   findAll(@Query() query: ContactQueryDto) {
     return this.contactService.findPaginatedSubmissions(query);
   }

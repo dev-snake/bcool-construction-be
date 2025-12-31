@@ -17,7 +17,11 @@ import {
   SystemModule,
   PermissionAction,
 } from '../../common/enums/permission.enum';
-import { PostQueryDto, CreatePostDto, UpdatePostDto } from './dto/blog-post.dto';
+import {
+  PostQueryDto,
+  CreatePostDto,
+  UpdatePostDto,
+} from './dto/blog-post.dto';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/blog-category.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
 import { Public } from '../../common/decorators/public.decorator';
@@ -64,7 +68,10 @@ export class BlogController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.CREATE })
+  @CheckPermission({
+    module: SystemModule.BLOG,
+    action: PermissionAction.CREATE,
+  })
   @Post()
   @ApiOperation({ summary: 'Admin: Create new post' })
   create(@Body() data: CreatePostDto) {
@@ -73,7 +80,10 @@ export class BlogController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.UPDATE })
+  @CheckPermission({
+    module: SystemModule.BLOG,
+    action: PermissionAction.UPDATE,
+  })
   @Put(':id')
   @ApiOperation({ summary: 'Admin: Update post' })
   update(@Param('id') id: string, @Body() data: UpdatePostDto) {
@@ -82,7 +92,10 @@ export class BlogController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.DELETE })
+  @CheckPermission({
+    module: SystemModule.BLOG,
+    action: PermissionAction.DELETE,
+  })
   @Delete(':id')
   @ApiOperation({ summary: 'Admin: Delete post' })
   remove(@Param('id') id: string) {
@@ -93,7 +106,10 @@ export class BlogController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.CREATE })
+  @CheckPermission({
+    module: SystemModule.BLOG,
+    action: PermissionAction.CREATE,
+  })
   @Post('categories')
   @ApiOperation({ summary: 'Admin: Create new category' })
   createCategory(@Body() data: CreateCategoryDto) {
@@ -102,7 +118,10 @@ export class BlogController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.UPDATE })
+  @CheckPermission({
+    module: SystemModule.BLOG,
+    action: PermissionAction.UPDATE,
+  })
   @Put('categories/:id')
   @ApiOperation({ summary: 'Admin: Update category' })
   updateCategory(@Param('id') id: string, @Body() data: UpdateCategoryDto) {
@@ -111,7 +130,10 @@ export class BlogController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.BLOG, action: PermissionAction.DELETE })
+  @CheckPermission({
+    module: SystemModule.BLOG,
+    action: PermissionAction.DELETE,
+  })
   @Delete('categories/:id')
   @ApiOperation({ summary: 'Admin: Delete category' })
   removeCategory(@Param('id') id: string) {

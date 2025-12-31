@@ -4,7 +4,11 @@ import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
 import { SystemModule } from './entities/module.entity';
 import { Permission } from './entities/permission.entity';
-import { CreateRoleDto, UpdateRoleDto, UpdateRolePermissionsDto } from './dto/role.dto';
+import {
+  CreateRoleDto,
+  UpdateRoleDto,
+  UpdateRolePermissionsDto,
+} from './dto/role.dto';
 import { CreateModuleDto } from './dto/module.dto';
 
 @Injectable()

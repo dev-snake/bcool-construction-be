@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { User } from '../users/entities/user.entity';
 import { CryptoUtil } from '../../common/utils/crypto.util';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -19,10 +20,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<Omit<User, 'passwordHash'> | null> {
     const user = await this.usersService.findByEmail(email, true);
     if (user && (await CryptoUtil.compare(pass, user.passwordHash))) {
-      const { passwordHash, ...result } = user;
+      const { passwordHash: _hash, ...result } = user;
       return result;
     }
     return null;
@@ -42,7 +46,7 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  private async generateTokens(user: any) {
+  private generateTokens(user: User | Omit<User, 'passwordHash'>) {
     const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
@@ -61,7 +65,7 @@ export class AuthService {
         throw new UnauthorizedException();
       }
       return this.generateTokens(user);
-    } catch (e) {
+    } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }

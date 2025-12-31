@@ -14,7 +14,10 @@ export class UsersService extends BaseService<User> {
     super(userRepository);
   }
 
-  async findByEmail(email: string, includePassword = false): Promise<User | null> {
+  async findByEmail(
+    email: string,
+    includePassword = false,
+  ): Promise<User | null> {
     const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'roles')
