@@ -20,7 +20,7 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.usersService.findByEmail(email, true);
     if (user && (await CryptoUtil.compare(pass, user.passwordHash))) {
       const { passwordHash, ...result } = user;
       return result;

@@ -14,11 +14,19 @@ export class UsersService extends BaseService<User> {
     super(userRepository);
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({
-      where: { email },
-      relations: ['roles', 'roles.permissions', 'roles.permissions.module'],
-    });
+  async findByEmail(email: string, includePassword = false): Promise<User | null> {
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'roles')
+      .leftJoinAndSelect('roles.permissions', 'permissions')
+      .leftJoinAndSelect('permissions.module', 'module')
+      .where('user.email = :email', { email });
+
+    if (includePassword) {
+      queryBuilder.addSelect('user.passwordHash');
+    }
+
+    return queryBuilder.getOne();
   }
 
   async create(data: any): Promise<User> {
