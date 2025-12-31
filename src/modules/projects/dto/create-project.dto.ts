@@ -63,13 +63,13 @@ export class CreateProjectDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  projectTypeId?: number;
+  @IsString()
+  projectTypeId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  statusId?: number;
+  @IsString()
+  statusId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

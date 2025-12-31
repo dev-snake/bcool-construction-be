@@ -1,11 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { Contact } from './contact.entity';
 
 @Entity('contact_statuses')
-export class ContactStatus {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class ContactStatus extends BaseEntity {
   @Column({ length: 100 })
   name: string;
 

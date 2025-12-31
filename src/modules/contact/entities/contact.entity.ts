@@ -18,7 +18,7 @@ export class Contact extends BaseEntity {
   message: string;
 
   @Column({ name: 'type_id', nullable: true })
-  typeId: number;
+  typeId: string;
 
   @ManyToOne(() => ContactType, (type) => type.contacts, {
     onDelete: 'SET NULL',
@@ -27,7 +27,7 @@ export class Contact extends BaseEntity {
   type: ContactType;
 
   @Column({ name: 'status_id', nullable: true })
-  statusId: number;
+  statusId: string;
 
   @ManyToOne(() => ContactStatus, (status) => status.contacts, {
     onDelete: 'SET NULL',

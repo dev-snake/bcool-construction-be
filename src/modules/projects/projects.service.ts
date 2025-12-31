@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, In } from 'typeorm';
+import { Repository, FindManyOptions, In, Like } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Project } from './entities/project.entity';
 import { ProjectContent } from './entities/project-content.entity';
@@ -9,9 +9,11 @@ import { ProjectType } from './entities/project-type.entity';
 import { ProjectStatus } from './entities/project-status.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { ProjectQueryDto } from './dto/project-query.dto';
 import { Service } from '../services/entities/service.entity';
 import { CreateProjectTypeDto, UpdateProjectTypeDto } from './dto/project-type.dto';
 import { CreateProjectStatusDto, UpdateProjectStatusDto } from './dto/project-status.dto';
+import { PaginationUtil } from '../../common/utils/pagination.util';
 
 @Injectable()
 export class ProjectsService extends BaseService<Project> {
@@ -34,11 +36,18 @@ export class ProjectsService extends BaseService<Project> {
 
   async createProject(createProjectDto: CreateProjectDto) {
     const { serviceIds, contents, media, ...projectData } = createProjectDto;
+    
+    // Check if slug already exists
+    const existing = await this.projectRepository.findOne({ where: { slug: projectData.slug } });
+    if (existing) {
+      throw new ConflictException('Slug already exists');
+    }
+
     const project = this.projectRepository.create(projectData);
 
     if (serviceIds && serviceIds.length > 0) {
       project.services = await this.serviceRepository.find({
-        where: { id: In(serviceIds) } as any,
+        where: { id: In(serviceIds) },
       });
     }
 
@@ -73,24 +82,30 @@ export class ProjectsService extends BaseService<Project> {
   async updateProject(id: string, data: UpdateProjectDto) {
     const { serviceIds, contents, media, ...projectData } = data;
     const project = await this.projectRepository.findOne({
-      where: { id } as any,
+      where: { id },
       relations: ['services'],
     });
 
     if (!project) throw new NotFoundException('Project not found');
 
+    if (projectData.slug && projectData.slug !== project.slug) {
+      const existing = await this.projectRepository.findOne({ where: { slug: projectData.slug } });
+      if (existing) {
+        throw new ConflictException('Slug already exists');
+      }
+    }
+
     Object.assign(project, projectData);
 
     if (serviceIds) {
       project.services = await this.serviceRepository.find({
-        where: { id: In(serviceIds) } as any,
+        where: { id: In(serviceIds) },
       });
     }
 
     await this.projectRepository.save(project);
 
     if (contents) {
-      // Clear existing and replace (simple approach)
       await this.contentRepository.delete({ projectId: id });
       const contentEntities = contents.map((c) =>
         this.contentRepository.create({ ...c, projectId: id }),
@@ -99,7 +114,6 @@ export class ProjectsService extends BaseService<Project> {
     }
 
     if (media) {
-      // Clear existing and replace
       await this.mediaRepository.delete({ projectId: id });
       const mediaEntities = media.map((m) =>
         this.mediaRepository.create({ ...m, projectId: id }),
@@ -107,10 +121,30 @@ export class ProjectsService extends BaseService<Project> {
       await this.mediaRepository.save(mediaEntities);
     }
 
-    return this.projectRepository.findOne({
-      where: { id } as any,
-      relations: ['contents', 'media', 'projectType', 'status', 'services'],
+    return this.findDetail(project.slug);
+  }
+
+  async findAllProjects(query: ProjectQueryDto) {
+    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
+    const where: any = {};
+    
+    if (query.typeId) where.projectTypeId = query.typeId;
+    if (query.statusId) where.statusId = query.statusId;
+    if (query.featured !== undefined) where.isFeatured = query.featured;
+    if (query.published !== undefined) where.isPublished = query.published;
+    if (query.search) {
+      where.title = Like(`%${query.search}%`);
+    }
+
+    const [items, total] = await this.projectRepository.findAndCount({
+      where,
+      relations: ['projectType', 'status'],
+      take,
+      skip,
+      order: { [query.sortBy || 'createdAt']: query.order || 'DESC' },
     });
+
+    return { items, total };
   }
 
   // Project Type Management
@@ -123,12 +157,12 @@ export class ProjectsService extends BaseService<Project> {
     return this.typeRepository.save(type);
   }
 
-  async updateType(id: number, dto: UpdateProjectTypeDto) {
+  async updateType(id: string, dto: UpdateProjectTypeDto) {
     await this.typeRepository.update(id, dto);
     return this.typeRepository.findOne({ where: { id } });
   }
 
-  async removeType(id: number) {
+  async removeType(id: string) {
     return this.typeRepository.delete(id);
   }
 
@@ -142,12 +176,12 @@ export class ProjectsService extends BaseService<Project> {
     return this.statusRepository.save(status);
   }
 
-  async updateStatus(id: number, dto: UpdateProjectStatusDto) {
+  async updateStatus(id: string, dto: UpdateProjectStatusDto) {
     await this.statusRepository.update(id, dto);
     return this.statusRepository.findOne({ where: { id } });
   }
 
-  async removeStatus(id: number) {
+  async removeStatus(id: string) {
     return this.statusRepository.delete(id);
   }
 }

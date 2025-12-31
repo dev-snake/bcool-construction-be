@@ -1,11 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { Permission } from './permission.entity';
 
 @Entity('modules')
-export class SystemModule {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class SystemModule extends BaseEntity {
   @Column({ unique: true })
   code: string;
 

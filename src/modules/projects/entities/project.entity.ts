@@ -35,14 +35,14 @@ export class Project extends BaseEntity {
   scale: string;
 
   @Column({ name: 'project_type_id', nullable: true })
-  projectTypeId: number;
+  projectTypeId: string;
 
   @ManyToOne(() => ProjectType, (type) => type.projects, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'project_type_id' })
   projectType: ProjectType;
 
   @Column({ name: 'status_id', nullable: true })
-  statusId: number;
+  statusId: string;
 
   @ManyToOne(() => ProjectStatus, (status) => status.projects, {
     onDelete: 'SET NULL',

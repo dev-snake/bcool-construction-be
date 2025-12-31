@@ -1,17 +1,14 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { Project } from './project.entity';
 
 @Entity('project_contents')
-export class ProjectContent {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class ProjectContent extends BaseEntity {
   @Column({ name: 'project_id' })
   projectId: string;
 

@@ -26,7 +26,7 @@ export class RolesService {
     });
   }
 
-  async findRoleById(id: number) {
+  async findRoleById(id: string) {
     const role = await this.roleRepository.findOne({
       where: { id },
       relations: ['permissions', 'permissions.module'],
@@ -40,18 +40,18 @@ export class RolesService {
     return this.roleRepository.save(role);
   }
 
-  async updateRole(id: number, dto: UpdateRoleDto) {
+  async updateRole(id: string, dto: UpdateRoleDto) {
     await this.roleRepository.update(id, dto);
     return this.findRoleById(id);
   }
 
-  async removeRole(id: number) {
+  async removeRole(id: string) {
     const role = await this.findRoleById(id);
     return this.roleRepository.remove(role);
   }
 
   // PERMISSIONS
-  async updateRolePermissions(roleId: number, dto: UpdateRolePermissionsDto) {
+  async updateRolePermissions(roleId: string, dto: UpdateRolePermissionsDto) {
     const role = await this.findRoleById(roleId);
 
     // Create or find permissions
@@ -60,20 +60,20 @@ export class RolesService {
       let permission = await this.permissionRepository.findOne({
         where: {
           moduleId: item.moduleId,
-          canView: item.canView,
-          canCreate: item.canCreate,
-          canUpdate: item.canUpdate,
-          canDelete: item.canDelete,
+          canView: item.canView ?? false,
+          canCreate: item.canCreate ?? false,
+          canUpdate: item.canUpdate ?? false,
+          canDelete: item.canDelete ?? false,
         },
       });
 
       if (!permission) {
         permission = this.permissionRepository.create({
           moduleId: item.moduleId,
-          canView: item.canView,
-          canCreate: item.canCreate,
-          canUpdate: item.canUpdate,
-          canDelete: item.canDelete,
+          canView: item.canView ?? false,
+          canCreate: item.canCreate ?? false,
+          canUpdate: item.canUpdate ?? false,
+          canDelete: item.canDelete ?? false,
         });
         permission = await this.permissionRepository.save(permission);
       }
@@ -94,7 +94,7 @@ export class RolesService {
     return this.moduleRepository.save(module);
   }
 
-  async removeModule(id: number) {
+  async removeModule(id: string) {
     return this.moduleRepository.delete(id);
   }
 }

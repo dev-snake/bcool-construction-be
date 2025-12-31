@@ -1,10 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 
 @Entity('counters')
-export class Counter {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Counter extends BaseEntity {
   @Column({ length: 255 })
   label: string;
 

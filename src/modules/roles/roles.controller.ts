@@ -6,7 +6,6 @@ import {
   Param,
   Put,
   Delete,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesService } from './roles.service';
@@ -16,7 +15,6 @@ import {
   UpdateRolePermissionsDto,
 } from './dto/role.dto';
 import { CreateModuleDto } from './dto/module.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
 import {
   SystemModule,
@@ -25,7 +23,6 @@ import {
 
 @ApiTags('Roles & Permissions')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
@@ -42,7 +39,7 @@ export class RolesController {
   @CheckPermission({ module: SystemModule.ROLES, action: PermissionAction.VIEW })
   @ApiOperation({ summary: 'Get role detail' })
   findOne(@Param('id') id: string) {
-    return this.rolesService.findRoleById(+id);
+    return this.rolesService.findRoleById(id);
   }
 
   @Post()
@@ -56,14 +53,14 @@ export class RolesController {
   @CheckPermission({ module: SystemModule.ROLES, action: PermissionAction.UPDATE })
   @ApiOperation({ summary: 'Update role' })
   update(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
-    return this.rolesService.updateRole(+id, dto);
+    return this.rolesService.updateRole(id, dto);
   }
 
   @Delete(':id')
   @CheckPermission({ module: SystemModule.ROLES, action: PermissionAction.DELETE })
   @ApiOperation({ summary: 'Delete role' })
   remove(@Param('id') id: string) {
-    return this.rolesService.removeRole(+id);
+    return this.rolesService.removeRole(id);
   }
 
   // PERMISSIONS
@@ -74,11 +71,12 @@ export class RolesController {
     @Param('id') id: string,
     @Body() dto: UpdateRolePermissionsDto,
   ) {
-    return this.rolesService.updateRolePermissions(+id, dto);
+    return this.rolesService.updateRolePermissions(id, dto);
   }
 
   // MODULES
   @Get('modules/all')
+  @CheckPermission({ module: SystemModule.ROLES, action: PermissionAction.VIEW })
   @ApiOperation({ summary: 'Get all system modules' })
   findAllModules() {
     return this.rolesService.findAllModules();
@@ -95,6 +93,6 @@ export class RolesController {
   @CheckPermission({ module: SystemModule.ROLES, action: PermissionAction.DELETE })
   @ApiOperation({ summary: 'Delete system module' })
   removeModule(@Param('id') id: string) {
-    return this.rolesService.removeModule(+id);
+    return this.rolesService.removeModule(id);
   }
 }

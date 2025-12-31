@@ -1,19 +1,16 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { SystemModule } from './module.entity';
 
 @Entity('permissions')
-export class Permission {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Permission extends BaseEntity {
   @Column({ name: 'module_id' })
-  moduleId: number;
+  moduleId: string;
 
   @ManyToOne(() => SystemModule, (module) => module.permissions, {
     onDelete: 'CASCADE',

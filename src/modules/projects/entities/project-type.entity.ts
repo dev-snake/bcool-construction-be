@@ -1,11 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { Project } from './project.entity';
 
 @Entity('project_types')
-export class ProjectType {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class ProjectType extends BaseEntity {
   @Column({ unique: true, length: 50 })
   code: string;
 

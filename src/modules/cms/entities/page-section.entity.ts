@@ -1,17 +1,14 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/base/base.entity';
 import { Page } from './page.entity';
 
 @Entity('page_sections')
-export class PageSection {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class PageSection extends BaseEntity {
   @Column({ name: 'page_id' })
   pageId: string;
 
