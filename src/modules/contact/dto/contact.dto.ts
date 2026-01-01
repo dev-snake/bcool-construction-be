@@ -6,6 +6,7 @@ import {
   IsInt,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class CreateContactDto {
   @ApiProperty()
@@ -48,13 +49,20 @@ export class UpdateContactDto {
 export class ContactQueryDto {
   @ApiProperty({ required: false })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   page?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   limit?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  search?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -76,3 +84,5 @@ export class ContactQueryDto {
   @IsString()
   fullName?: string;
 }
+
+

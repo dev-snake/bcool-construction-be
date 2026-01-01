@@ -62,21 +62,25 @@ export class ContactService extends BaseService<Contact> {
 
   // ADMIN - MANAGE SUBMISSIONS
   async findPaginatedSubmissions(query: ContactQueryDto) {
-    const { page = 1, limit = 10, typeId, statusId, email, fullName } = query;
-    const where: any = {};
+    const { page = 1, limit = 10, typeId, statusId, email, fullName, search } = query;
+    
+    const qb = this.contactRepository.createQueryBuilder('contact')
+      .leftJoinAndSelect('contact.type', 'type')
+      .leftJoinAndSelect('contact.status', 'status');
 
-    if (typeId) where.typeId = typeId;
-    if (statusId) where.statusId = statusId;
-    if (email) where.email = Like(`%${email}%`);
-    if (fullName) where.fullName = Like(`%${fullName}%`);
+    if (typeId) qb.andWhere('contact.typeId = :typeId', { typeId });
+    if (statusId) qb.andWhere('contact.statusId = :statusId', { statusId });
+    if (email) qb.andWhere('contact.email LIKE :email', { email: `%${email}%` });
+    if (fullName) qb.andWhere('contact.fullName LIKE :fullName', { fullName: `%${fullName}%` });
+    if (search) {
+      qb.andWhere('(contact.email LIKE :search OR contact.fullName LIKE :search OR contact.phone LIKE :search)', { search: `%${search}%` });
+    }
 
-    const [items, total] = await this.contactRepository.findAndCount({
-      where,
-      relations: ['type', 'status'],
-      order: { createdAt: 'DESC' },
-      take: limit,
-      skip: (page - 1) * limit,
-    });
+    qb.orderBy('contact.createdAt', 'DESC')
+      .take(limit)
+      .skip((page - 1) * limit);
+
+    const [items, total] = await qb.getManyAndCount();
 
     return {
       items,
