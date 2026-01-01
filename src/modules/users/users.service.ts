@@ -1,15 +1,27 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { User } from './entities/user.entity';
+import { Role } from '../roles/entities/role.entity';
 import { CryptoUtil } from '../../common/utils/crypto.util';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserQueryDto,
+} from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService extends BaseService<User> {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
   ) {
     super(userRepository);
   }
@@ -32,17 +44,94 @@ export class UsersService extends BaseService<User> {
     return queryBuilder.getOne();
   }
 
-  async create(data: any): Promise<User> {
+  async findById(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id } as any,
+      relations: ['roles'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async findUsersPaginated(query: UserQueryDto) {
+    const { page = 1, limit = 10, search, roleId, isActive } = query;
+
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'roles');
+
+    if (search) {
+      qb.andWhere(
+        '(user.email LIKE :search OR user.fullName LIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (roleId) {
+      qb.andWhere('roles.id = :roleId', { roleId });
+    }
+
+    if (isActive !== undefined) {
+      qb.andWhere('user.isActive = :isActive', { isActive });
+    }
+
+    qb.orderBy('user.createdAt', 'DESC')
+      .take(limit)
+      .skip((page - 1) * limit);
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return {
+      items,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async create(data: CreateUserDto): Promise<User> {
     const existing = await this.findByEmail(data.email);
     if (existing) {
       throw new ConflictException('Email already exists');
     }
 
+    const user = this.userRepository.create({
+      email: data.email,
+      fullName: data.fullName,
+      phone: data.phone,
+      isActive: data.isActive ?? true,
+    });
+
     if (data.password) {
-      data.passwordHash = await CryptoUtil.hash(data.password);
-      delete data.password;
+      user.passwordHash = await CryptoUtil.hash(data.password);
     }
 
-    return super.create(data);
+    if (data.roleIds && data.roleIds.length > 0) {
+      user.roles = await this.roleRepository.findBy({
+        id: In(data.roleIds),
+      });
+    }
+
+    return this.userRepository.save(user);
+  }
+
+  async updateUser(id: string, data: UpdateUserDto): Promise<User> {
+    const user = await this.findById(id);
+
+    if (data.email) user.email = data.email;
+    if (data.fullName) user.fullName = data.fullName;
+    if (data.phone !== undefined) user.phone = data.phone;
+    if (data.isActive !== undefined) user.isActive = data.isActive;
+
+    if (data.roleIds) {
+      user.roles = await this.roleRepository.findBy({
+        id: In(data.roleIds),
+      });
+    }
+
+    return this.userRepository.save(user);
   }
 }
