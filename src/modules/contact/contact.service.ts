@@ -18,6 +18,8 @@ import {
   CreateContactStatusDto,
   UpdateContactStatusDto,
 } from './dto/contact-status.dto';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class ContactService extends BaseService<Contact> {
@@ -28,6 +30,8 @@ export class ContactService extends BaseService<Contact> {
     private readonly typeRepository: Repository<ContactType>,
     @InjectRepository(ContactStatus)
     private readonly statusRepository: Repository<ContactStatus>,
+    @InjectQueue('contacts')
+    private readonly contactQueue: Queue,
   ) {
     super(contactRepository);
   }
@@ -35,14 +39,25 @@ export class ContactService extends BaseService<Contact> {
   // PUBLIC
   async submitForm(data: CreateContactDto) {
     const contact = this.contactRepository.create(data);
-    // Set default status if possible
+    
+    // Set default status if possible (New)
     const defaultStatus = await this.statusRepository.findOne({
-      where: { name: 'New' },
+      where: { name: 'Mới' }, // Adjusted to match Vietnamese seed
     });
     if (defaultStatus) {
       contact.statusId = defaultStatus.id;
     }
-    return this.contactRepository.save(contact);
+    
+    const saved = await this.contactRepository.save(contact);
+    
+    // Dispatch background job
+    await this.contactQueue.add('submission', {
+      contactId: saved.id,
+      fullName: saved.fullName,
+      email: saved.email,
+    });
+
+    return saved;
   }
 
   // ADMIN - MANAGE SUBMISSIONS

@@ -16,6 +16,7 @@ import {
 } from './dto/blog-post.dto';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/blog-category.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
+import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 @Injectable()
 export class BlogService extends BaseService<Post> {
@@ -24,13 +25,22 @@ export class BlogService extends BaseService<Post> {
     private readonly postRepository: Repository<Post>,
     @InjectRepository(PostCategory)
     private readonly categoryRepository: Repository<PostCategory>,
+    private readonly cacheService: RedisCacheService,
   ) {
     super(postRepository);
+  }
+
+  private async clearCache() {
+    await this.cacheService.delByPattern('blog:*');
   }
 
   // --- POSTS ---
 
   async findAllPosts(query: PostQueryDto) {
+    const cacheKey = `blog:list:${JSON.stringify(query)}`;
+    const cached = await this.cacheService.get<{ items: Post[]; total: number }>(cacheKey);
+    if (cached) return cached;
+
     const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
     const where: any = {};
 
@@ -54,7 +64,9 @@ export class BlogService extends BaseService<Post> {
       take,
     });
 
-    return { items, total };
+    const result = { items, total };
+    await this.cacheService.set(cacheKey, result, 3600);
+    return result;
   }
 
   async findActive(query: any) {
@@ -72,11 +84,17 @@ export class BlogService extends BaseService<Post> {
   }
 
   async findDetail(slug: string) {
+    const cacheKey = `blog:detail:${slug}`;
+    const cached = await this.cacheService.get<Post>(cacheKey);
+    if (cached) return cached;
+
     const post = await this.postRepository.findOne({
       where: { slug },
       relations: ['category'],
     });
     if (!post) throw new NotFoundException('Post not found');
+
+    await this.cacheService.set(cacheKey, post, 3600);
     return post;
   }
 
@@ -93,7 +111,9 @@ export class BlogService extends BaseService<Post> {
       slug,
       publishAt: data.publishAt || (data.isPublished ? new Date() : undefined),
     } as any);
-    return this.postRepository.save(post);
+    const saved = await this.postRepository.save(post);
+    await this.clearCache();
+    return saved;
   }
 
   async updatePost(id: string, data: UpdatePostDto) {
@@ -112,21 +132,31 @@ export class BlogService extends BaseService<Post> {
     }
 
     Object.assign(post, data);
-    return this.postRepository.save(post);
+    const saved = await this.postRepository.save(post);
+    await this.clearCache();
+    return saved;
   }
 
   async deletePost(id: string) {
     const post = await this.postRepository.findOneBy({ id } as any);
     if (!post) throw new NotFoundException('Post not found');
-    return this.postRepository.softRemove(post);
+    const result = await this.postRepository.softRemove(post);
+    await this.clearCache();
+    return result;
   }
 
   // --- CATEGORIES ---
 
   async findAllCategories() {
-    return this.categoryRepository.find({
+    const cacheKey = 'blog:categories:all';
+    const cached = await this.cacheService.get<PostCategory[]>(cacheKey);
+    if (cached) return cached;
+
+    const categories = await this.categoryRepository.find({
       order: { name: 'ASC' },
     });
+    await this.cacheService.set(cacheKey, categories, 3600);
+    return categories;
   }
 
   async findCategoryById(id: string) {
@@ -147,7 +177,9 @@ export class BlogService extends BaseService<Post> {
       ...data,
       slug,
     });
-    return this.categoryRepository.save(cat);
+    const saved = await this.categoryRepository.save(cat);
+    await this.clearCache();
+    return saved;
   }
 
   async updateCategory(id: string, data: UpdateCategoryDto) {
@@ -165,7 +197,9 @@ export class BlogService extends BaseService<Post> {
     }
 
     Object.assign(category, data);
-    return this.categoryRepository.save(category);
+    const saved = await this.categoryRepository.save(category);
+    await this.clearCache();
+    return saved;
   }
 
   async deleteCategory(id: string) {
@@ -177,6 +211,8 @@ export class BlogService extends BaseService<Post> {
     if (postsCount > 0) {
       throw new ConflictException('Cannot delete category with posts');
     }
-    return this.categoryRepository.remove(category);
+    const result = await this.categoryRepository.remove(category);
+    await this.clearCache();
+    return result;
   }
 }

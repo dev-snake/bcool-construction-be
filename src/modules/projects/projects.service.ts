@@ -24,6 +24,7 @@ import {
   UpdateProjectStatusDto,
 } from './dto/project-status.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
+import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 @Injectable()
 export class ProjectsService extends BaseService<Project> {
@@ -40,8 +41,13 @@ export class ProjectsService extends BaseService<Project> {
     private readonly statusRepository: Repository<ProjectStatus>,
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
+    private readonly cacheService: RedisCacheService,
   ) {
     super(projectRepository);
+  }
+
+  private async clearCache() {
+    await this.cacheService.delByPattern('projects:*');
   }
 
   async createProject(createProjectDto: CreateProjectDto) {
@@ -79,15 +85,22 @@ export class ProjectsService extends BaseService<Project> {
       await this.mediaRepository.save(mediaEntities);
     }
 
+    await this.clearCache();
     return this.findDetail(savedProject.slug);
   }
 
   async findDetail(slug: string) {
+    const cacheKey = `projects:detail:${slug}`;
+    const cached = await this.cacheService.get<Project>(cacheKey);
+    if (cached) return cached;
+
     const project = await this.projectRepository.findOne({
       where: { slug },
       relations: ['contents', 'media', 'projectType', 'status', 'services'],
     });
     if (!project) throw new NotFoundException('Project not found');
+
+    await this.cacheService.set(cacheKey, project, 3600); // 1 hour
     return project;
   }
 
@@ -135,10 +148,15 @@ export class ProjectsService extends BaseService<Project> {
       await this.mediaRepository.save(mediaEntities);
     }
 
+    await this.clearCache();
     return this.findDetail(project.slug);
   }
 
   async findAllProjects(query: ProjectQueryDto) {
+    const cacheKey = `projects:list:${JSON.stringify(query)}`;
+    const cached = await this.cacheService.get<{ items: Project[]; total: number }>(cacheKey);
+    if (cached) return cached;
+
     const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
     const where: any = {};
 
@@ -158,7 +176,9 @@ export class ProjectsService extends BaseService<Project> {
       order: { [query.sortBy || 'createdAt']: query.order || 'DESC' },
     });
 
-    return { items, total };
+    const result = { items, total };
+    await this.cacheService.set(cacheKey, result, 3600); // 1 hour
+    return result;
   }
 
   // Project Type Management

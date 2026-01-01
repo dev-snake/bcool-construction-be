@@ -18,6 +18,7 @@ import {
   CreateServiceMediaDto,
 } from './dto/service.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
+import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 @Injectable()
 export class ServicesService extends BaseService<Service> {
@@ -28,13 +29,22 @@ export class ServicesService extends BaseService<Service> {
     private readonly contentRepository: Repository<ServiceContent>,
     @InjectRepository(ServiceMedia)
     private readonly mediaRepository: Repository<ServiceMedia>,
+    private readonly cacheService: RedisCacheService,
   ) {
     super(serviceRepository);
+  }
+
+  private async clearCache() {
+    await this.cacheService.delByPattern('services:*');
   }
 
   // --- PUBLIC ---
 
   async findHierarchical(query: ServiceQueryDto) {
+    const cacheKey = `services:list:${JSON.stringify(query)}`;
+    const cached = await this.cacheService.get<{ items: Service[]; total: number }>(cacheKey);
+    if (cached) return cached;
+
     const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
     const where: any = { parentId: IsNull() };
 
@@ -54,15 +64,23 @@ export class ServicesService extends BaseService<Service> {
       take,
     });
 
-    return { items, total };
+    const result = { items, total };
+    await this.cacheService.set(cacheKey, result, 3600);
+    return result;
   }
 
   async findDetail(slug: string) {
+    const cacheKey = `services:detail:${slug}`;
+    const cached = await this.cacheService.get<Service>(cacheKey);
+    if (cached) return cached;
+
     const service = await this.serviceRepository.findOne({
       where: { slug },
       relations: ['contents', 'media', 'children', 'children.children'],
     });
     if (!service) throw new NotFoundException('Service not found');
+
+    await this.cacheService.set(cacheKey, service, 3600);
     return service;
   }
 
@@ -80,7 +98,9 @@ export class ServicesService extends BaseService<Service> {
       ...data,
       slug,
     });
-    return this.serviceRepository.save(service);
+    const saved = await this.serviceRepository.save(service);
+    await this.clearCache();
+    return saved;
   }
 
   async updateService(id: string, data: UpdateServiceDto) {
@@ -99,13 +119,17 @@ export class ServicesService extends BaseService<Service> {
     }
 
     Object.assign(service, data);
-    return this.serviceRepository.save(service);
+    const saved = await this.serviceRepository.save(service);
+    await this.clearCache();
+    return saved;
   }
 
   async removeService(id: string) {
     const service = await this.serviceRepository.findOneBy({ id } as any);
     if (!service) throw new NotFoundException('Service not found');
-    return this.softDelete(id);
+    const result = await this.softDelete(id);
+    await this.clearCache();
+    return result;
   }
 
   // --- CONTENT & MEDIA MANAGEMENT ---
@@ -115,20 +139,26 @@ export class ServicesService extends BaseService<Service> {
       serviceId,
       content: data.content,
     });
-    return this.contentRepository.save(item);
+    const saved = await this.contentRepository.save(item);
+    await this.clearCache();
+    return saved;
   }
 
   async updateContent(id: string, data: CreateServiceContentDto) {
     const content = await this.contentRepository.findOneBy({ id } as any);
     if (!content) throw new NotFoundException('Content not found');
     content.content = data.content;
-    return this.contentRepository.save(content);
+    const saved = await this.contentRepository.save(content);
+    await this.clearCache();
+    return saved;
   }
 
   async removeContent(id: string) {
     const content = await this.contentRepository.findOneBy({ id } as any);
     if (!content) throw new NotFoundException('Content not found');
-    return this.contentRepository.remove(content);
+    const result = await this.contentRepository.remove(content);
+    await this.clearCache();
+    return result;
   }
 
   async addMedia(serviceId: string, data: CreateServiceMediaDto) {
@@ -136,19 +166,25 @@ export class ServicesService extends BaseService<Service> {
       serviceId,
       ...data,
     });
-    return this.mediaRepository.save(item);
+    const saved = await this.mediaRepository.save(item);
+    await this.clearCache();
+    return saved;
   }
 
   async updateMedia(id: string, data: CreateServiceMediaDto) {
     const media = await this.mediaRepository.findOneBy({ id } as any);
     if (!media) throw new NotFoundException('Media not found');
     Object.assign(media, data);
-    return this.mediaRepository.save(media);
+    const saved = await this.mediaRepository.save(media);
+    await this.clearCache();
+    return saved;
   }
 
   async removeMedia(id: string) {
     const media = await this.mediaRepository.findOneBy({ id } as any);
     if (!media) throw new NotFoundException('Media not found');
-    return this.mediaRepository.remove(media);
+    const result = await this.mediaRepository.remove(media);
+    await this.clearCache();
+    return result;
   }
 }

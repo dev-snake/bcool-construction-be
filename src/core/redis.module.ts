@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { BullModule } from '@nestjs/bullmq';
+import { RedisCacheService } from '../common/services/redis-cache.service';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BullModule } from '@nestjs/bullmq';
       }),
     }),
   ],
-  exports: [RedisModule, BullModule],
+  providers: [RedisCacheService],
+  exports: [RedisModule, BullModule, RedisCacheService],
 })
 export class RedisProviderModule {}
