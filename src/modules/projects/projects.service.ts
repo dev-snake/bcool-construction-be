@@ -104,6 +104,15 @@ export class ProjectsService extends BaseService<Project> {
     return project;
   }
 
+  async findProjectById(id: string) {
+    const project = await this.projectRepository.findOne({
+      where: { id },
+      relations: ['contents', 'media', 'projectType', 'status', 'services'],
+    });
+    if (!project) throw new NotFoundException('Project not found');
+    return project;
+  }
+
   async updateProject(id: string, data: UpdateProjectDto) {
     const { serviceIds, contents, media, ...projectData } = data;
     const project = await this.projectRepository.findOne({

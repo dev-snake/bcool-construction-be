@@ -37,10 +37,21 @@ export class ProjectsController {
     module: SystemModule.PROJECTS,
     action: PermissionAction.VIEW,
   })
-  @Get('admin/all')
+  @Get('/all')
   @ApiOperation({ summary: 'Admin: Get all projects (including unpublished)' })
-  async adminFindAll(@Query() query: ProjectQueryDto) {
+  async getAll(@Query() query: ProjectQueryDto) {
     return this.projectsService.findAllProjects(query);
+  }
+
+  @ApiBearerAuth()
+  @CheckPermission({
+    module: SystemModule.PROJECTS,
+    action: PermissionAction.VIEW,
+  })
+  @Get('/:id')
+  @ApiOperation({ summary: 'Admin: Get project detail by ID' })
+  async getOne(@Param('id') id: string) {
+    return this.projectsService.findProjectById(id);
   }
 
   @Public()
