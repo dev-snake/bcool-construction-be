@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, In, Like } from 'typeorm';
+import { Repository, FindManyOptions, In, ILike } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Project } from './entities/project.entity';
 import { ProjectContent } from './entities/project-content.entity';
@@ -147,7 +147,7 @@ export class ProjectsService extends BaseService<Project> {
     if (query.featured !== undefined) where.isFeatured = query.featured;
     if (query.published !== undefined) where.isPublished = query.published;
     if (query.search) {
-      where.title = Like(`%${query.search}%`);
+      where.title = ILike(`%${query.search}%`);
     }
 
     const [items, total] = await this.projectRepository.findAndCount({

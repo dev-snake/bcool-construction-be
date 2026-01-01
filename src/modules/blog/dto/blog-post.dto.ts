@@ -9,6 +9,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { BaseQueryDto } from '../../../common/dto/base-query.dto';
+import { Transform } from 'class-transformer';
 
 export class CreatePostDto {
   @ApiProperty({ example: 'title-uuid-or-id' })
@@ -65,5 +66,6 @@ export class PostQueryDto extends BaseQueryDto {
   @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   isPublished?: boolean;
 }

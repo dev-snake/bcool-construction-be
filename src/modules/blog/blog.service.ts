@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual, Like } from 'typeorm';
+import { Repository, LessThanOrEqual, ILike } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Post } from './entities/post.entity';
 import { PostCategory } from './entities/post-category.entity';
@@ -43,7 +43,7 @@ export class BlogService extends BaseService<Post> {
     }
 
     if (query.search) {
-      where.title = Like(`%${query.search}%`);
+      where.title = ILike(`%${query.search}%`);
     }
 
     const [items, total] = await this.postRepository.findAndCount({

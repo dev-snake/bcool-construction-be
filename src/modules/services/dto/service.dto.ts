@@ -9,6 +9,7 @@ import {
   IsInt,
   Min,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { BaseQueryDto } from '../../../common/dto/base-query.dto';
 
 export class CreateServiceDto {
@@ -67,6 +68,7 @@ export class ServiceQueryDto extends BaseQueryDto {
   @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   isActive?: boolean;
 }
 

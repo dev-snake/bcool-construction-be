@@ -6,7 +6,6 @@ import {
   Param,
   Put,
   Delete,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ProjectsService } from './projects.service';
@@ -14,18 +13,19 @@ import {
   CreateProjectStatusDto,
   UpdateProjectStatusDto,
 } from './dto/project-status.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
 import {
   SystemModule,
   PermissionAction,
 } from '../../common/enums/permission.enum';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('Project Statuses')
 @Controller('project-statuses')
 export class ProjectStatusesController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all project statuses' })
   findAll() {
@@ -33,7 +33,6 @@ export class ProjectStatusesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.PROJECTS,
     action: PermissionAction.CREATE,
@@ -45,7 +44,6 @@ export class ProjectStatusesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.PROJECTS,
     action: PermissionAction.UPDATE,
@@ -57,7 +55,6 @@ export class ProjectStatusesController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.PROJECTS,
     action: PermissionAction.DELETE,
