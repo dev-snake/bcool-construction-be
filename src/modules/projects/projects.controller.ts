@@ -37,7 +37,7 @@ export class ProjectsController {
     module: SystemModule.PROJECTS,
     action: PermissionAction.VIEW,
   })
-  @Get('/all')
+  @Get('all')
   @ApiOperation({ summary: 'Admin: Get all projects (including unpublished)' })
   async getAll(@Query() query: ProjectQueryDto) {
     return this.projectsService.findAllProjects(query);
@@ -48,7 +48,7 @@ export class ProjectsController {
     module: SystemModule.PROJECTS,
     action: PermissionAction.VIEW,
   })
-  @Get('/:id')
+  @Get('all/:id')
   @ApiOperation({ summary: 'Admin: Get project detail by ID' })
   async getOne(@Param('id') id: string) {
     return this.projectsService.findProjectById(id);

@@ -179,7 +179,7 @@ export class ProjectsService extends BaseService<Project> {
 
     const [items, total] = await this.projectRepository.findAndCount({
       where,
-      relations: ['projectType', 'status'],
+      relations: ['projectType', 'status', 'media'],
       take,
       skip,
       order: { [query.sortBy || 'createdAt']: query.order || 'DESC' },

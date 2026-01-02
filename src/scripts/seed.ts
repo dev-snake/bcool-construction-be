@@ -12,8 +12,10 @@ import { ContactStatus } from '../modules/contact/entities/contact-status.entity
 import { Service } from '../modules/services/entities/service.entity';
 import { Post } from '../modules/blog/entities/post.entity';
 import { Project } from '../modules/projects/entities/project.entity';
+import { ProjectMedia } from '../modules/projects/entities/project-media.entity';
 import { Banner } from '../modules/cms/entities/banner.entity';
 import { Counter } from '../modules/cms/entities/counter.entity';
+import Redis from 'ioredis';
 
 async function seed() {
   try {
@@ -81,7 +83,9 @@ async function seed() {
     const industrialType = projectTypeRepo.create({ code: 'INDUSTRIAL', name: 'Công trình công nghiệp' });
     const interiorType = projectTypeRepo.create({ code: 'INTERIOR', name: 'Thiết kế nội thất' });
     const renovationType = projectTypeRepo.create({ code: 'RENOVATION', name: 'Sửa chữa & cải tạo' });
-    await projectTypeRepo.save([civilType, industrialType, interiorType, renovationType]);
+    const infrastructureType = projectTypeRepo.create({ code: 'INFRASTRUCTURE', name: 'Hạ tầng' });
+    const hospitalityType = projectTypeRepo.create({ code: 'HOSPITALITY', name: 'Khách sạn' });
+    await projectTypeRepo.save([civilType, industrialType, interiorType, renovationType, infrastructureType, hospitalityType]);
 
     // 6. Seed Project Statuses
     console.log('Seeding project statuses...');
@@ -202,36 +206,128 @@ async function seed() {
     // 12. Seed Projects
     console.log('Seeding projects...');
     const projectRepo = AppDataSource.getRepository(Project);
-    const projects = [
+    const projectMediaRepo = AppDataSource.getRepository(ProjectMedia);
+
+    const savedProjects = await projectRepo.save(projectRepo.create([
       {
-        title: 'Biệt thự sân vườn Anh Hùng - Bình Dương',
-        slug: 'biet-thu-anh-hung-binh-duong',
-        shortDescription: 'Dự án biệt thự cao cấp phong cách Hiện đại kết hợp không gian xanh.',
-        location: 'Dĩ An, Bình Dương',
-        investor: 'Ông Nguyễn Văn Hùng',
-        scale: '500m2 - 3 tầng',
+        title: 'The Ritz Carlton Residences',
+        slug: 'the-ritz-carlton-residences',
+        shortDescription: 'Tổ hợp căn hộ siêu sang thương hiệu Ritz-Carlton đầu tiên tại Việt Nam.',
+        location: 'Hoàn Kiếm, Hà Nội',
+        investor: 'Masterise Homes',
+        scale: 'Tòa nhà 10 tầng, 104 căn hộ',
         projectTypeId: civilType.id,
-        statusId: completedStatus.id,
-        startedAt: new Date('2023-01-15'),
-        completedAt: new Date('2023-10-20'),
+        statusId: progressStatus.id,
+        startedAt: new Date('2021-05-01'),
         isFeatured: true,
         isPublished: true,
       },
       {
-        title: 'Căn hộ Penthouse The View - Quận 7',
-        slug: 'penthouse-the-view-q7',
-        shortDescription: 'Cải tạo và thiết kế nội thất căn hộ Penthouse sang trọng.',
-        location: 'Quận 7, TP. HCM',
-        investor: 'Bà Lê Thị Mai',
-        scale: '250m2',
-        projectTypeId: interiorType.id,
+        title: 'Bcool High-Tech Factory',
+        slug: 'bcool-high-tech-factory',
+        shortDescription: 'Nhà máy sản xuất linh kiện điện tử chính xác cao đạt tiêu chuẩn LEED.',
+        location: 'KCN VSIP II, Bình Dương',
+        investor: 'Bcool Tech Corp',
+        scale: '5ha - 3 nhà xưởng',
+        projectTypeId: industrialType.id,
+        statusId: completedStatus.id,
+        startedAt: new Date('2022-03-15'),
+        completedAt: new Date('2023-01-20'),
+        isFeatured: true,
+        isPublished: true,
+      },
+      {
+        title: 'Sunbay Park Resort',
+        slug: 'sunbay-park-resort',
+        shortDescription: 'Quần thể nghỉ dưỡng phức hợp Apart-Hotel đẳng cấp quốc tế.',
+        location: 'Phan Rang, Ninh Thuận',
+        investor: 'Crystal Bay Group',
+        scale: '3300 căn hộ khách sạn',
+        projectTypeId: hospitalityType.id,
         statusId: progressStatus.id,
-        startedAt: new Date('2024-02-01'),
+        startedAt: new Date('2019-12-01'),
+        isFeatured: true,
+        isPublished: true,
+      },
+      {
+        title: 'Royal City Complex',
+        slug: 'royal-city-complex',
+        shortDescription: 'Khu đô thị phức hợp bậc nhất thủ đô với phong cách châu Âu tân cổ điển.',
+        location: 'Thanh Xuân, Hà Nội',
+        investor: 'Vingroup',
+        scale: '12ha - 6 tòa tháp',
+        projectTypeId: civilType.id,
+        statusId: completedStatus.id,
+        startedAt: new Date('2010-01-01'),
+        completedAt: new Date('2013-11-20'),
+        isFeatured: true,
+        isPublished: true,
+      },
+      {
+        title: 'Nhà hát Hồ Gươm',
+        slug: 'nha-hat-ho-guom',
+        shortDescription: 'Công trình văn hóa biểu tượng mới giữa lòng Hà thành.',
+        location: 'Hoàn Kiếm, Hà Nội',
+        investor: 'Bộ Công An',
+        scale: '5000m2 - 900 chỗ ngồi',
+        projectTypeId: civilType.id,
+        statusId: completedStatus.id,
+        startedAt: new Date('2021-10-01'),
+        completedAt: new Date('2023-07-09'),
+        isFeatured: true,
+        isPublished: true,
+      },
+      {
+        title: 'Cầu vượt biển Tân Vũ',
+        slug: 'cau-vuot-bien-tan-vu',
+        shortDescription: 'Công trình giao thông trọng điểm kết nối Cảng Lạch Huyện.',
+        location: 'Hải Phòng',
+        investor: 'Bộ GTVT',
+        scale: 'Chiều dài 5.4km vượt biển',
+        projectTypeId: infrastructureType.id,
+        statusId: completedStatus.id,
+        startedAt: new Date('2014-05-15'),
+        completedAt: new Date('2017-09-02'),
         isFeatured: true,
         isPublished: true,
       }
+    ]));
+
+    // Seed project media
+    const projectMedias = [
+      {
+        projectId: savedProjects[0].id,
+        mediaUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=800&auto=format&fit=crop',
+        sortOrder: 0
+      },
+      {
+        projectId: savedProjects[1].id,
+        mediaUrl: 'https://plus.unsplash.com/premium_photo-1742418151224-85deebc22419?q=80&w=1075&auto=format&fit=crop',
+        sortOrder: 0
+      },
+      {
+        projectId: savedProjects[2].id,
+        mediaUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop',
+        sortOrder: 0
+      },
+      {
+        projectId: savedProjects[3].id,
+        mediaUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop',
+        sortOrder: 0
+      },
+      {
+        projectId: savedProjects[4].id,
+        mediaUrl: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?q=80&w=1200&auto=format&fit=crop',
+        sortOrder: 0
+      },
+      {
+        projectId: savedProjects[5].id,
+        mediaUrl: 'https://plus.unsplash.com/premium_photo-1725408072021-702a7c748bfd?q=80&w=1075&auto=format&fit=crop',
+        sortOrder: 0
+      }
     ];
-    await projectRepo.save(projectRepo.create(projects));
+
+    await projectMediaRepo.save(projectMediaRepo.create(projectMedias));
 
     // 13. Seed CMS Banners
     console.log('Seeding banners...');
@@ -259,6 +355,23 @@ async function seed() {
       { label: 'Nhân sự thâm niên', value: 45, sortOrder: 4 },
     ];
     await counterRepo.save(counterRepo.create(counters));
+    
+    // 15. Clear Cache
+    console.log('Clearing Redis cache...');
+    const redis = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    });
+    
+    const patterns = ['projects:*', 'posts:*', 'services:*', 'cms:*'];
+    for (const pattern of patterns) {
+      const keys = await redis.keys(pattern);
+      if (keys.length > 0) {
+        await redis.del(...keys);
+      }
+    }
+    await redis.quit();
+    console.log('Cache cleared.');
 
     console.log('Seeding completed successfully!');
     process.exit(0);
