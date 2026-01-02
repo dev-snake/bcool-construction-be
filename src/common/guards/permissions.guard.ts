@@ -11,6 +11,7 @@ import {
   PermissionLogic,
 } from '../decorators/permission.decorator';
 import { User } from '../../modules/users/entities/user.entity';
+import { RoleCode } from '../enums/role.enum';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -35,7 +36,7 @@ export class PermissionsGuard implements CanActivate {
 
     // Super Admin check
     const isSuperAdmin = currentUser.roles.some(
-      (role) => role.code === 'SUPER_ADMIN',
+      (role) => role.code === RoleCode.SUPER_ADMIN,
     );
     if (isSuperAdmin) {
       return true;

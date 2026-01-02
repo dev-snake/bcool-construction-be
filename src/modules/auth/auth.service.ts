@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { AUTH_CONFIG } from '../../common/constants/system.constant';
 
 @Injectable()
 export class AuthService {
@@ -50,7 +51,9 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+      refresh_token: this.jwtService.sign(payload, {
+        expiresIn: AUTH_CONFIG.REFRESH_TOKEN_EXPIRES,
+      }),
       user,
     };
   }

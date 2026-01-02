@@ -17,6 +17,7 @@ import {
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/blog-category.dto';
 import { PaginationUtil } from '../../common/utils/pagination.util';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
+import { CACHE_TTL } from '../../common/constants/system.constant';
 
 @Injectable()
 export class BlogService extends BaseService<Post> {
@@ -65,7 +66,7 @@ export class BlogService extends BaseService<Post> {
     });
 
     const result = { items, total };
-    await this.cacheService.set(cacheKey, result, 3600);
+    await this.cacheService.set(cacheKey, result, CACHE_TTL.ONE_HOUR);
     return result;
   }
 
@@ -94,7 +95,7 @@ export class BlogService extends BaseService<Post> {
     });
     if (!post) throw new NotFoundException('Post not found');
 
-    await this.cacheService.set(cacheKey, post, 3600);
+    await this.cacheService.set(cacheKey, post, CACHE_TTL.ONE_HOUR);
     return post;
   }
 
@@ -155,7 +156,7 @@ export class BlogService extends BaseService<Post> {
     const categories = await this.categoryRepository.find({
       order: { name: 'ASC' },
     });
-    await this.cacheService.set(cacheKey, categories, 3600);
+    await this.cacheService.set(cacheKey, categories, CACHE_TTL.ONE_HOUR);
     return categories;
   }
 

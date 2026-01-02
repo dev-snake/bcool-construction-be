@@ -20,6 +20,9 @@ import {
 } from './dto/contact-status.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ContactStatusName } from '../../common/enums/contact-status.enum';
+import { QueueName } from '../../common/enums/queue.enum';
+import { JobName } from '../../common/enums/job.enum';
 
 @Injectable()
 export class ContactService extends BaseService<Contact> {
@@ -30,7 +33,7 @@ export class ContactService extends BaseService<Contact> {
     private readonly typeRepository: Repository<ContactType>,
     @InjectRepository(ContactStatus)
     private readonly statusRepository: Repository<ContactStatus>,
-    @InjectQueue('contacts')
+    @InjectQueue(QueueName.CONTACTS)
     private readonly contactQueue: Queue,
   ) {
     super(contactRepository);
@@ -42,7 +45,7 @@ export class ContactService extends BaseService<Contact> {
     
     // Set default status if possible (New)
     const defaultStatus = await this.statusRepository.findOne({
-      where: { name: 'Mới' }, // Adjusted to match Vietnamese seed
+      where: { name: ContactStatusName.NEW }, 
     });
     if (defaultStatus) {
       contact.statusId = defaultStatus.id;
@@ -51,7 +54,7 @@ export class ContactService extends BaseService<Contact> {
     const saved = await this.contactRepository.save(contact);
     
     // Dispatch background job
-    await this.contactQueue.add('submission', {
+    await this.contactQueue.add(JobName.CONTACT_SUBMISSION, {
       contactId: saved.id,
       fullName: saved.fullName,
       email: saved.email,

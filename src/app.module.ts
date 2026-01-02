@@ -13,6 +13,7 @@ import { ContactModule } from './modules/contact/contact.module';
 import { MediaModule } from './modules/media/media.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { StatsModule } from './modules/stats/stats.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
     MediaModule,
     LogsModule,
     ProjectsModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
