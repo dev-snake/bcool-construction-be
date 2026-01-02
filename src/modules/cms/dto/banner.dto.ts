@@ -13,6 +13,16 @@ export class CreateBannerDto {
   @IsString()
   title?: string;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  subtitle?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -39,6 +49,16 @@ export class UpdateBannerDto {
   @IsOptional()
   @IsString()
   title?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  subtitle?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

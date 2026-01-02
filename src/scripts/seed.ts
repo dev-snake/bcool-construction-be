@@ -238,17 +238,12 @@ async function seed() {
     const bannerRepo = AppDataSource.getRepository(Banner);
     const banners = [
       {
-        title: 'KIẾN TẠO KHÔNG GIAN SỐNG ĐẲNG CẤP',
-        imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069',
+        title: 'BCOOL GROUP',
+        subtitle: 'since 1993 • uy tín — tầm vóc — tri thức',
+        description: 'Xây dựng bằng lương tâm và vươn tầm bằng tri thức',
+        imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000&auto=format&fit=crop',
         linkUrl: '/services',
         sortOrder: 1,
-        isActive: true,
-      },
-      {
-        title: 'THI CÔNG CHUYÊN NGHIỆP - CAM KẾT TIẾN ĐỘ',
-        imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070',
-        linkUrl: '/projects',
-        sortOrder: 2,
         isActive: true,
       }
     ];

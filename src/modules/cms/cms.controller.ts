@@ -46,14 +46,12 @@ export class CmsController {
     return this.cmsService.findPageBySlug(slug);
   }
 
-  // ADMIN ENDPOINTS - BANNERS
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.VIEW })
+  // PUBLIC ENDPOINTS - LISTS
+  @Public()
   @Get('banners')
-  @ApiOperation({ summary: 'Admin: Get all banners' })
+  @ApiOperation({ summary: 'Get active banners' })
   getBanners() {
-    return this.cmsService.findAllBanners(true);
+    return this.cmsService.findAllBanners(false);
   }
 
   @ApiBearerAuth()
@@ -92,14 +90,11 @@ export class CmsController {
     return this.cmsService.removeBanner(id);
   }
 
-  // ADMIN ENDPOINTS - COUNTERS
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.VIEW })
+  @Public()
   @Get('counters')
-  @ApiOperation({ summary: 'Admin: Get all counters' })
+  @ApiOperation({ summary: 'Get active counters' })
   getCounters() {
-    return this.cmsService.findAllCounters(true);
+    return this.cmsService.findAllCounters(false);
   }
 
   @ApiBearerAuth()

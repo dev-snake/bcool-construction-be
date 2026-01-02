@@ -6,6 +6,12 @@ export class Banner extends BaseEntity {
   @Column({ length: 255, nullable: true })
   title: string;
 
+  @Column({ length: 255, nullable: true })
+  subtitle: string;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
   @Column({ name: 'image_url', type: 'text' })
   imageUrl: string;
 
