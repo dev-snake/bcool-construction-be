@@ -17,6 +17,9 @@ export class Contact extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   message: string;
 
+  @Column({ name: 'admin_note', type: 'text', nullable: true })
+  adminNote: string;
+
   @Column({ name: 'type_id', nullable: true })
   typeId: string;
 
