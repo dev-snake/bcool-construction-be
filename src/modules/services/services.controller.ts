@@ -47,6 +47,17 @@ export class ServicesController {
     return this.servicesService.findDetail(slug);
   }
 
+  @ApiBearerAuth()
+  @CheckPermission({
+    module: SystemModule.SERVICES,
+    action: PermissionAction.VIEW,
+  })
+  @Get('admin/:id')
+  @ApiOperation({ summary: 'Admin: Get service detail by ID' })
+  getOne(@Param('id') id: string) {
+    return this.servicesService.findById(id);
+  }
+
   // --- ADMIN SERVICES ---
 
   @ApiBearerAuth()

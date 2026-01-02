@@ -84,6 +84,15 @@ export class ServicesService extends BaseService<Service> {
     return service;
   }
 
+  async findById(id: string) {
+    const service = await this.serviceRepository.findOne({
+      where: { id } as any,
+      relations: ['contents', 'media', 'children'],
+    });
+    if (!service) throw new NotFoundException('Service not found');
+    return service;
+  }
+
   // --- ADMIN CRUD ---
 
   async createService(data: CreateServiceDto) {
