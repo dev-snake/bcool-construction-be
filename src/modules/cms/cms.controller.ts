@@ -68,6 +68,15 @@ export class CmsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.VIEW })
+  @Get('admin/banners')
+  @ApiOperation({ summary: 'Admin: Get all banners (including inactive)' })
+  getAdminBanners() {
+    return this.cmsService.findAllBanners(true);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.CMS,
     action: PermissionAction.UPDATE,
@@ -107,6 +116,15 @@ export class CmsController {
   @ApiOperation({ summary: 'Admin: Create new counter' })
   createCounter(@Body() dto: CreateCounterDto) {
     return this.cmsService.createCounter(dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.VIEW })
+  @Get('admin/counters')
+  @ApiOperation({ summary: 'Admin: Get all counters (including inactive)' })
+  getAdminCounters() {
+    return this.cmsService.findAllCounters(true);
   }
 
   @ApiBearerAuth()
