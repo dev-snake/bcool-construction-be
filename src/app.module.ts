@@ -14,11 +14,15 @@ import { MediaModule } from './modules/media/media.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { StatsModule } from './modules/stats/stats.module';
+import { HealthModule } from './modules/health/health.module';
+import { LoggerModule } from './common/logger';
 // import { SystemsModule } from './modules/systems/systems.module';
 
 @Module({
   imports: [
     CoreModule,
+    LoggerModule,
+    HealthModule,
     AuthModule,
     UsersModule,
     RolesModule,
@@ -36,3 +40,4 @@ import { StatsModule } from './modules/stats/stats.module';
   providers: [AppService],
 })
 export class AppModule {}
+

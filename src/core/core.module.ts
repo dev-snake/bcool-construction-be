@@ -6,6 +6,7 @@ import databaseConfig from '../config/database.config';
 import appConfig from '../config/app.config';
 import redisConfig from '../config/redis.config';
 import s3Config from '../config/s3.config';
+import { envValidationSchema } from '../config/env.validation';
 
 import { DatabaseModule } from './database.module';
 import { RedisProviderModule } from './redis.module';
@@ -17,7 +18,12 @@ import { SecurityModule } from './security.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig, redisConfig, s3Config],
+      validationSchema: envValidationSchema,
+      validationOptions: {
+        abortEarly: false, // Show all validation errors at once
+      },
     }),
+
     MulterModule.register({
       // We will use memory storage for S3 uploads
     }),
