@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -75,6 +76,25 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete user' })
   remove(@Param('id') id: string) {
     return this.usersService.softDelete(id);
+  }
+  @Patch(':id/lock')
+  @CheckPermission({
+    module: SystemModule.USERS,
+    action: PermissionAction.UPDATE,
+  })
+  @ApiOperation({ summary: 'Lock user account' })
+  lock(@Param('id') id: string) {
+    return this.usersService.lock(id);
+  }
+
+  @Patch(':id/unlock')
+  @CheckPermission({
+    module: SystemModule.USERS,
+    action: PermissionAction.UPDATE,
+  })
+  @ApiOperation({ summary: 'Unlock user account' })
+  unlock(@Param('id') id: string) {
+    return this.usersService.unlock(id);
   }
 }
 

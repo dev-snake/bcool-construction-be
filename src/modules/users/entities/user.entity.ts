@@ -4,6 +4,7 @@ import { Role } from '../../roles/entities/role.entity';
 import { Media } from '../../media/entities/media.entity';
 import { LoginLog } from '../../logs/entities/login-log.entity';
 import { Log } from '../../logs/entities/log.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -11,6 +12,7 @@ export class User extends BaseEntity {
   email: string;
 
   @Column({ name: 'password_hash', select: false })
+  @Exclude()
   passwordHash: string;
 
   @Column({ name: 'full_name', nullable: true })

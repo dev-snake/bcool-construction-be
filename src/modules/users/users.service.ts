@@ -132,6 +132,22 @@ export class UsersService extends BaseService<User> {
       });
     }
 
+    if (data.password) {
+      user.passwordHash = await CryptoUtil.hash(data.password);
+    }
+
+    return this.userRepository.save(user);
+  }
+
+  async lock(id: string): Promise<User> {
+    const user = await this.findById(id);
+    user.isLocked = true;
+    return this.userRepository.save(user);
+  }
+
+  async unlock(id: string): Promise<User> {
+    const user = await this.findById(id);
+    user.isLocked = false;
     return this.userRepository.save(user);
   }
 }

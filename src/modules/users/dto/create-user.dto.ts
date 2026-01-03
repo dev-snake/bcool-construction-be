@@ -70,6 +70,12 @@ export class UpdateUserDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  password?: string;
 }
 
 export class UserQueryDto {
