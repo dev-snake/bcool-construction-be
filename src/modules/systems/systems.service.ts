@@ -139,7 +139,7 @@ export class SystemsService {
 
       if (userData.rolesStr) {
         const roleNames = userData.rolesStr.split(',').map(s => s.trim());
-        const roles = [];
+        const roles: Role[] = [];
         for (const name of roleNames) {
           let role = rolesMap.get(name);
           if (!role) {

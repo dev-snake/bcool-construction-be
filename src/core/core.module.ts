@@ -5,6 +5,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import databaseConfig from '../config/database.config';
 import appConfig from '../config/app.config';
 import redisConfig from '../config/redis.config';
+import s3Config from '../config/s3.config';
 
 import { DatabaseModule } from './database.module';
 import { RedisProviderModule } from './redis.module';
@@ -15,10 +16,10 @@ import { SecurityModule } from './security.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, appConfig, redisConfig],
+      load: [databaseConfig, appConfig, redisConfig, s3Config],
     }),
     MulterModule.register({
-      dest: './uploads',
+      // We will use memory storage for S3 uploads
     }),
     TerminusModule,
     DatabaseModule,

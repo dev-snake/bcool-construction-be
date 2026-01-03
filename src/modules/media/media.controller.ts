@@ -8,16 +8,16 @@ import {
   UseGuards,
   Query,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
-import {
-  SystemModule,
-  PermissionAction,
-} from '../../common/enums/permission.enum';
+import { SystemModule, PermissionAction } from '../../common/enums/permission.enum';
 import { CreateMediaDto, MediaQueryDto } from './dto/media.dto';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('Media')
 @Controller('media')
@@ -53,8 +53,32 @@ export class MediaController {
     module: SystemModule.MEDIA,
     action: PermissionAction.CREATE,
   })
+  @Post('upload')
+  @ApiOperation({ summary: 'Admin: Upload media file' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+    return this.mediaService.uploadFile(file, req.user?.id);
+  }
+
+  @ApiBearerAuth()
+  @CheckPermission({
+    module: SystemModule.MEDIA,
+    action: PermissionAction.CREATE,
+  })
   @Post()
-  @ApiOperation({ summary: 'Admin: Create media metadata' })
+  @ApiOperation({ summary: 'Admin: Create media metadata manually' })
   create(@Body() data: CreateMediaDto, @Req() req: any) {
     return this.mediaService.createMedia(data, req.user?.id);
   }
