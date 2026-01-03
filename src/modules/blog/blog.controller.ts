@@ -70,6 +70,18 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.BLOG,
+    action: PermissionAction.VIEW,
+  })
+  @Get('admin/posts/:id')
+  @ApiOperation({ summary: 'Admin: Get post details by ID' })
+  findOneAdmin(@Param('id') id: string) {
+    return this.blogService.findPostById(id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({
+    module: SystemModule.BLOG,
     action: PermissionAction.CREATE,
   })
   @Post()

@@ -99,6 +99,15 @@ export class BlogService extends BaseService<Post> {
     return post;
   }
 
+  async findPostById(id: string) {
+    const post = await this.postRepository.findOne({
+      where: { id } as any,
+      relations: ['category'],
+    });
+    if (!post) throw new NotFoundException('Post not found');
+    return post;
+  }
+
   async createPost(data: CreatePostDto) {
     const slug = data.slug || StringUtil.slugify(data.title);
 

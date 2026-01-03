@@ -185,6 +185,17 @@ describe('Blog Management (e2e)', () => {
         .expect(200);
     });
 
+    it('GET /blog/admin/posts/:id (Admin)', () => {
+      return request(app.getHttpServer())
+        .get(`/api/v1/blog/admin/posts/${postId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.id).toBe(postId);
+          expect(res.body.slug).toBe(postSlug);
+        });
+    });
+
     it('PUT /blog/:id', async () => {
       const response = await request(app.getHttpServer())
         .put(`/api/v1/blog/${postId}`)
