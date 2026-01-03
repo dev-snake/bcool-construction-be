@@ -14,6 +14,7 @@ import { MediaModule } from './modules/media/media.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { StatsModule } from './modules/stats/stats.module';
+import { SystemsModule } from './modules/systems/systems.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { StatsModule } from './modules/stats/stats.module';
     LogsModule,
     ProjectsModule,
     StatsModule,
+    SystemsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
