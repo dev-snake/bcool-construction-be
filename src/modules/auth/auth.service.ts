@@ -26,11 +26,20 @@ export class AuthService {
     pass: string,
   ): Promise<Omit<User, 'passwordHash'> | null> {
     const user = await this.usersService.findByEmail(email, true);
-    if (user && (await CryptoUtil.compare(pass, user.passwordHash))) {
-      const { passwordHash: _hash, ...result } = user;
-      return result;
+    if (!user || !(await CryptoUtil.compare(pass, user.passwordHash))) {
+      return null;
     }
-    return null;
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('Tài khoản chưa được kích hoạt');
+    }
+
+    if (user.isLocked) {
+      throw new UnauthorizedException('Tài khoản đã bị khóa');
+    }
+
+    const { passwordHash: _hash, ...result } = user;
+    return result;
   }
 
   async login(loginDto: LoginDto) {
@@ -67,6 +76,11 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException();
       }
+
+      if (!user.isActive || user.isLocked) {
+        throw new UnauthorizedException('Tài khoản không khả dụng');
+      }
+
       return this.generateTokens(user);
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
