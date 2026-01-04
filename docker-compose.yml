@@ -4,8 +4,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - '80:80'
-      - '443:443'
+      - '8080:80'
+      - '8443:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
@@ -19,11 +19,14 @@ services:
     build:
       context: .
       target: development
+    command: npm run start:dev
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     expose:
       - '3000'
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
       - DB_HOST=db
