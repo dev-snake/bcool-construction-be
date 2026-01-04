@@ -2,6 +2,9 @@
 
 Đã setup xong folder Docker chuẩn chỉnh! 
 
+> ⚠️ **Lưu ý**: Tất cả files Docker giờ nằm trong folder `docker/` thôi. 
+> Các file Docker cũ ở root đã được chuyển vào `.old-docker-files/` (không dùng nữa).
+
 ## ⚡ Quick Start
 
 ```bash
@@ -22,12 +25,19 @@ Xem thêm:
 ## 📂 Cấu trúc
 
 ```
-docker/
-├── Dockerfile.dev & Dockerfile.prod
-├── docker-compose.dev.yml & docker-compose.prod.yml
-├── nginx/nginx.conf
-├── scripts/ (start-dev.sh, stop.sh, logs.sh)
-└── README.md & QUICKSTART.md
+bcool-construction-be/
+├── .env                    ← Environment variables (duy nhất)
+├── docker/                 ← ✅ TẤT CẢ FILES DOCKER Ở ĐÂY
+│   ├── Dockerfile.dev
+│   ├── Dockerfile.prod
+│   ├── docker-compose.dev.yml
+│   ├── docker-compose.prod.yml
+│   ├── nginx/nginx.conf
+│   ├── scripts/ (start-dev.sh, stop.sh, logs.sh)
+│   ├── README.md
+│   ├── QUICKSTART.md
+│   └── ARCHITECTURE.md     ← Sơ đồ chi tiết
+└── .old-docker-files/      ← ❌ Files cũ (không dùng)
 ```
 
-Tất cả file Docker đã được tổ chức gọn gàng trong folder `docker/`!
+**Chỉ dùng files trong `docker/` folder thôi!**
