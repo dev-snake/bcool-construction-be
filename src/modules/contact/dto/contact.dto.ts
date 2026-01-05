@@ -6,6 +6,7 @@ import {
   IsInt,
   Matches,
   MaxLength,
+  IsUUID,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -37,14 +38,14 @@ export class CreateContactDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   typeId?: string;
 }
 
 export class UpdateContactDto {
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   statusId?: string;
 
   @ApiProperty({ required: false })
@@ -73,12 +74,12 @@ export class ContactQueryDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   typeId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   statusId?: string;
 
   @ApiProperty({ required: false })
@@ -91,5 +92,3 @@ export class ContactQueryDto {
   @IsString()
   fullName?: string;
 }
-
-

@@ -60,4 +60,12 @@ export const envValidationSchema = Joi.object({
   AWS_REGION: Joi.string().default('ap-southeast-1'),
   AWS_S3_BUCKET: Joi.string().optional(),
   AWS_S3_PUBLIC_URL: Joi.string().uri().optional(),
+  
+  // Mail
+  MAIL_HOST: Joi.string().optional(),
+  MAIL_PORT: Joi.number().default(587),
+  MAIL_USER: Joi.string().optional(),
+  MAIL_PASSWORD: Joi.string().optional(),
+  MAIL_FROM: Joi.string().email().optional(),
+  CONTACT_NOTIFICATION_EMAIL: Joi.string().email().default('dangvanhaufpt2019@gmail.com'),
 });

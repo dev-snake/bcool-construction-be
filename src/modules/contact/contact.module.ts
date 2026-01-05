@@ -9,13 +9,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Contact } from './entities/contact.entity';
 import { ContactType } from './entities/contact-type.entity';
 import { ContactStatus } from './entities/contact-status.entity';
+import { MailModule } from '../mail/mail.module';
+import { QueueName } from '../../common/enums/queue.enum';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Contact, ContactType, ContactStatus]),
     BullModule.registerQueue({
-      name: 'contacts',
+      name: QueueName.CONTACTS,
     }),
+    MailModule,
   ],
   controllers: [
     ContactController,
