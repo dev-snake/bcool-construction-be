@@ -58,6 +58,8 @@ export class ContactService extends BaseService<Contact> {
       contactId: saved.id,
       fullName: saved.fullName,
       email: saved.email,
+      phone: saved.phone,
+      message: saved.message,
     });
 
     return saved;
