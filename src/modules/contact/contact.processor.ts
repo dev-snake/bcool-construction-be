@@ -20,6 +20,7 @@ export class ContactProcessor extends WorkerHost {
     this.logger.log(`Sending notification for contact: ${contactId} (${fullName} <${email}>)`);
     
     try {
+      // 1. Send notification to admin
       await this.mailService.sendContactNotification({
         fullName,
         email,
@@ -27,6 +28,15 @@ export class ContactProcessor extends WorkerHost {
         type,
         message,
       });
+
+      // 2. Send confirmation to customer
+      await this.mailService.sendCustomerConfirmation({
+        fullName,
+        email,
+        phone,
+        message,
+      });
+
       this.logger.log(`Contact submission job ${job.id} completed.`);
       return { success: true };
     } catch (error) {
