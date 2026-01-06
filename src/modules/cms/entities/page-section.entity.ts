@@ -17,6 +17,12 @@ export class PageSection extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   content: string;
 
+  @Column({ length: 50, default: 'RICHTEXT' })
+  type: string;
+
+  @Column({ type: 'json', nullable: true })
+  metadata: Record<string, any>;
+
   @Column({ name: 'sort_order', default: 0 })
   sortOrder: number;
 

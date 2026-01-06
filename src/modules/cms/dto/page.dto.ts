@@ -60,6 +60,15 @@ export class CreatePageSectionDto {
   @IsInt()
   sortOrder?: number;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  metadata?: Record<string, any>;
+
   @ApiProperty({ required: false, default: true })
   @IsOptional()
   @IsBoolean()
@@ -81,6 +90,15 @@ export class UpdatePageSectionDto {
   @IsOptional()
   @IsInt()
   sortOrder?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  metadata?: Record<string, any>;
 
   @ApiProperty({ required: false })
   @IsOptional()
