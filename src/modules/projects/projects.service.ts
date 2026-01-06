@@ -54,6 +54,10 @@ export class ProjectsService extends BaseService<Project> {
   async createProject(createProjectDto: CreateProjectDto) {
     const { serviceIds, contents, media, ...projectData } = createProjectDto;
 
+    // Normalize empty strings to null for UUID fields
+    if (projectData.projectTypeId === '') projectData.projectTypeId = undefined;
+    if (projectData.statusId === '') projectData.statusId = undefined;
+
     // Check if slug already exists
     const existing = await this.projectRepository.findOne({
       where: { slug: projectData.slug },
@@ -116,6 +120,10 @@ export class ProjectsService extends BaseService<Project> {
 
   async updateProject(id: string, data: UpdateProjectDto) {
     const { serviceIds, contents, media, ...projectData } = data;
+
+    // Normalize empty strings to null for UUID fields
+    if (projectData.projectTypeId === '') projectData.projectTypeId = undefined;
+    if (projectData.statusId === '') projectData.statusId = undefined;
     const project = await this.projectRepository.findOne({
       where: { id },
       relations: ['services'],
