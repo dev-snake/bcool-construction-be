@@ -9,10 +9,9 @@ import { Counter } from './entities/counter.entity';
 import { CreateBannerDto, UpdateBannerDto } from './dto/banner.dto';
 import { CreateCounterDto, UpdateCounterDto } from './dto/counter.dto';
 import {
-  CreatePageDto,
-  UpdatePageDto,
   CreatePageSectionDto,
   UpdatePageSectionDto,
+  PageQueryDto,
 } from './dto/page.dto';
 
 @Injectable()
@@ -31,10 +30,24 @@ export class CmsService extends BaseService<Page> {
   }
 
   // PAGES
-  async findAllPages() {
-    return this.pageRepository.find({
-      order: { createdAt: 'DESC' },
-    });
+  async findAllPages(query: PageQueryDto) {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.pageRepository.createQueryBuilder('page');
+
+    if (search) {
+      queryBuilder.where(
+        'page.title ILIKE :search OR page.slug ILIKE :search',
+        { search: `%${search}%` },
+      );
+    }
+
+    queryBuilder.orderBy('page.createdAt', 'DESC');
+    queryBuilder.skip(skip).take(limit);
+
+    const [items, total] = await queryBuilder.getManyAndCount();
+    return { items, total };
   }
 
   async findPageBySlug(slug: string) {

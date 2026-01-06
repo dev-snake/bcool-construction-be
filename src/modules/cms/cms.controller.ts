@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CmsService } from './cms.service';
@@ -20,10 +21,11 @@ import {
 import { CreateBannerDto, UpdateBannerDto } from './dto/banner.dto';
 import { CreateCounterDto, UpdateCounterDto } from './dto/counter.dto';
 import {
-  CreatePageDto,
-  UpdatePageDto,
   CreatePageSectionDto,
   UpdatePageSectionDto,
+  PageQueryDto,
+  CreatePageDto,
+  UpdatePageDto,
 } from './dto/page.dto';
 
 @ApiTags('CMS')
@@ -157,8 +159,8 @@ export class CmsController {
   @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.VIEW })
   @Get('pages')
   @ApiOperation({ summary: 'Admin: Get all pages' })
-  getPages() {
-    return this.cmsService.findAllPages();
+  getPages(@Query() query: PageQueryDto) {
+    return this.cmsService.findAllPages(query);
   }
 
   @ApiBearerAuth()
