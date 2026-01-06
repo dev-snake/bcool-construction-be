@@ -91,4 +91,14 @@ export class ContactQueryDto {
   @IsOptional()
   @IsString()
   fullName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  endDate?: string;
 }

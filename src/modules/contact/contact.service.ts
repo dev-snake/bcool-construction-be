@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
+import { PaginationUtil } from '../../common/utils/pagination.util';
 import { Contact } from './entities/contact.entity';
 import { ContactType } from './entities/contact-type.entity';
 import { ContactStatus } from './entities/contact-status.entity';
@@ -67,7 +68,17 @@ export class ContactService extends BaseService<Contact> {
 
   // ADMIN - MANAGE SUBMISSIONS
   async findPaginatedSubmissions(query: ContactQueryDto) {
-    const { page = 1, limit = 10, typeId, statusId, email, fullName, search } = query;
+    const { 
+      page = 1, 
+      limit = 10, 
+      typeId, 
+      statusId, 
+      email, 
+      fullName, 
+      search,
+      startDate,
+      endDate
+    } = query;
     
     const qb = this.contactRepository.createQueryBuilder('contact')
       .leftJoinAndSelect('contact.type', 'type')
@@ -81,9 +92,18 @@ export class ContactService extends BaseService<Contact> {
       qb.andWhere('(contact.email LIKE :search OR contact.fullName LIKE :search OR contact.phone LIKE :search)', { search: `%${search}%` });
     }
 
+    if (startDate) {
+      qb.andWhere('contact.createdAt >= :startDate', { startDate });
+    }
+    if (endDate) {
+      qb.andWhere('contact.createdAt <= :endDate', { endDate });
+    }
+
+    const { skip, take } = PaginationUtil.getSkipTake(page, limit);
+
     qb.orderBy('contact.createdAt', 'DESC')
-      .take(limit)
-      .skip((page - 1) * limit);
+      .take(take)
+      .skip(skip);
 
     const [items, total] = await qb.getManyAndCount();
 
