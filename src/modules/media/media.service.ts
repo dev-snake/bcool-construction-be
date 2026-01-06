@@ -42,7 +42,6 @@ export class MediaService extends BaseService<Media> {
         Key: fileName,
         Body: file.buffer,
         ContentType: file.mimetype,
-        ACL: 'public-read', // Ensure file is publicly accessible
       }),
     );
 
