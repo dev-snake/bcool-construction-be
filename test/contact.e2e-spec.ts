@@ -154,18 +154,18 @@ describe('Contact Module (e2e)', () => {
     let statusId: string;
 
     beforeAll(async () => {
-        // Create type and status for submission
-        const typeRes = await request(app.getHttpServer())
-            .post('/api/v1/contact-types')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({ code: 'SUB_TYPE_' + Date.now(), name: 'Submission Type' });
-        typeId = typeRes.body.id;
+      // Create type and status for submission
+      const typeRes = await request(app.getHttpServer())
+        .post('/api/v1/contact-types')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ code: 'SUB_TYPE_' + Date.now(), name: 'Submission Type' });
+      typeId = typeRes.body.id;
 
-        const statusRes = await request(app.getHttpServer())
-            .post('/api/v1/contact-statuses')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'Submission Status' });
-        statusId = statusRes.body.id;
+      const statusRes = await request(app.getHttpServer())
+        .post('/api/v1/contact-statuses')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: 'Submission Status' });
+      statusId = statusRes.body.id;
     });
 
     it('POST /contact/submit (Submit - Public)', async () => {
@@ -179,7 +179,11 @@ describe('Contact Module (e2e)', () => {
           typeId,
         });
       if (response.status !== 201) {
-        console.log('POST /contact/submit Failed:', response.status, JSON.stringify(response.body, null, 2));
+        console.log(
+          'POST /contact/submit Failed:',
+          response.status,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(201);
       submissionId = response.body.id;

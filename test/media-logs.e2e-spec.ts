@@ -90,7 +90,7 @@ describe('Media & Logs Management (e2e)', () => {
           fileUrl: 'https://example.com/test-image.jpg',
           fileType: 'image/jpeg',
         });
-      
+
       expect(response.status).toBe(201);
       mediaId = response.body.id;
     });

@@ -23,10 +23,10 @@ async function testUpload() {
   });
 
   const fileName = `test-upload-${Date.now()}.txt`;
-  
+
   try {
     console.log(`Attempting to upload ${fileName} with ACL "public-read"...`);
-    
+
     await s3Client.send(
       new PutObjectCommand({
         Bucket: bucket,
@@ -36,19 +36,18 @@ async function testUpload() {
         ACL: 'public-read',
       }),
     );
-    
-    console.log('✅ Success! Upload completed with public-read ACL.');
 
+    console.log('✅ Success! Upload completed with public-read ACL.');
   } catch (error: any) {
     console.error('❌ Upload Failed:');
     console.error(`Error Code: ${error.code || error.name}`);
     console.error(`Message: ${error.message}`);
-    
+
     if (error.name === 'AccessDenied') {
       console.log('\n--- Probable Cause ---');
       console.log('Your bucket likely has "Block public access" enabled.');
       console.log('Let\'s try uploading WITHOUT ACL "public-read"...');
-      
+
       try {
         await s3Client.send(
           new PutObjectCommand({
@@ -60,7 +59,10 @@ async function testUpload() {
         );
         console.log('✅ Success! Upload without ACL worked.');
       } catch (retryError: any) {
-        console.error('❌ Even without ACL, upload failed:', retryError.message);
+        console.error(
+          '❌ Even without ACL, upload failed:',
+          retryError.message,
+        );
       }
     }
   }

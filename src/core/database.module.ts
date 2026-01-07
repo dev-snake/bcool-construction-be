@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        ...config.get('database'),
+        ...(config.get('database') as Record<string, any>),
         autoLoadEntities: true,
         migrations: [__dirname + '/../migrations/*{.ts,.js}'],
         migrationsRun: true,

@@ -22,7 +22,7 @@ export class CustomLogger implements LoggerService {
   constructor(private readonly configService: ConfigService) {
     this.isProduction = this.configService.get('NODE_ENV') === 'production';
     this.logDir = path.join(process.cwd(), 'logs');
-    
+
     if (this.isProduction) {
       this.ensureLogDirectory();
     }
@@ -43,12 +43,17 @@ export class CustomLogger implements LoggerService {
     return path.join(this.logDir, `${level}-${date}.log`);
   }
 
-  private formatMessage(level: string, message: any, context?: string): LogEntry {
+  private formatMessage(
+    level: string,
+    message: any,
+    context?: string,
+  ): LogEntry {
     return {
       timestamp: new Date().toISOString(),
       level: level.toUpperCase(),
       context: context || this.context,
-      message: typeof message === 'object' ? JSON.stringify(message) : String(message),
+      message:
+        typeof message === 'object' ? JSON.stringify(message) : String(message),
     };
   }
 
@@ -96,10 +101,10 @@ export class CustomLogger implements LoggerService {
 
   private colorize(level: string, message: string): string {
     const colors: Record<string, string> = {
-      LOG: '\x1b[32m',     // Green
-      ERROR: '\x1b[31m',   // Red
-      WARN: '\x1b[33m',    // Yellow
-      DEBUG: '\x1b[36m',   // Cyan
+      LOG: '\x1b[32m', // Green
+      ERROR: '\x1b[31m', // Red
+      WARN: '\x1b[33m', // Yellow
+      DEBUG: '\x1b[36m', // Cyan
       VERBOSE: '\x1b[35m', // Magenta
     };
     const reset = '\x1b[0m';
@@ -109,7 +114,7 @@ export class CustomLogger implements LoggerService {
   private printToConsole(entry: LogEntry, trace?: string) {
     const contextStr = entry.context ? `[${entry.context}]` : '';
     const output = `[${entry.timestamp}] ${this.colorize(entry.level, entry.level.padEnd(7))} ${contextStr} ${entry.message}`;
-    
+
     if (entry.level === 'ERROR') {
       console.error(output);
       if (trace) console.error(trace);

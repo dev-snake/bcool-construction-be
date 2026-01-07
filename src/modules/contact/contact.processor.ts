@@ -13,12 +13,14 @@ export class ContactProcessor extends WorkerHost {
 
   async process(job: Job<any, any, string>): Promise<any> {
     this.logger.log(`Processing contact submission job: ${job.id}`);
-    
+
     const { contactId, fullName, email, phone, type, message } = job.data;
-    
+
     // Sending email notification
-    this.logger.log(`Sending notification for contact: ${contactId} (${fullName} <${email}>)`);
-    
+    this.logger.log(
+      `Sending notification for contact: ${contactId} (${fullName} <${email}>)`,
+    );
+
     try {
       // 1. Send notification to admin
       await this.mailService.sendContactNotification({
@@ -40,9 +42,11 @@ export class ContactProcessor extends WorkerHost {
       this.logger.log(`Contact submission job ${job.id} completed.`);
       return { success: true };
     } catch (error) {
-      this.logger.error(`Failed to send contact notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send contact notification: ${error.message}`,
+      );
       // Depending on retry policy, we might want to rethrow or return fail
-      throw error; 
+      throw error;
     }
   }
 }

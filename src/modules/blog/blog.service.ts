@@ -4,11 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  Repository,
-  LessThanOrEqual,
-  SelectQueryBuilder,
-} from 'typeorm';
+import { Repository, LessThanOrEqual, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Post } from './entities/post.entity';
 import { PostCategory } from './entities/post-category.entity';
@@ -50,15 +46,17 @@ export class BlogService extends BaseService<Post> {
 
   async findAllPosts(query: PostQueryDto) {
     const cacheKey = `blog:list:${JSON.stringify(query)}`;
-    const cached = await this.cacheService.get<{ items: Post[]; total: number }>(
-      cacheKey,
-    );
+    const cached = await this.cacheService.get<{
+      items: Post[];
+      total: number;
+    }>(cacheKey);
     if (cached) return cached;
 
     const { categoryId, isPublished } = query;
 
     const result = await this.findPaginated(query, 'post', (qb) => {
-      if (categoryId) qb.andWhere('post.categoryId = :categoryId', { categoryId });
+      if (categoryId)
+        qb.andWhere('post.categoryId = :categoryId', { categoryId });
       if (isPublished !== undefined)
         qb.andWhere('post.isPublished = :isPublished', { isPublished });
     });

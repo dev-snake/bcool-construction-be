@@ -29,21 +29,22 @@ export class HealthController {
     return this.health.check([
       // Database check
       () => this.db.pingCheck('database'),
-      
+
       // Redis check
       () => this.redis.isHealthy('redis'),
-      
+
       // Memory check (heap should not exceed 300MB)
       () => this.memory.checkHeap('memory_heap', 300 * 1024 * 1024),
-      
+
       // RSS memory check (should not exceed 500MB)
       () => this.memory.checkRSS('memory_rss', 500 * 1024 * 1024),
-      
+
       // Disk check (at least 10% free space on root)
-      () => this.disk.checkStorage('disk', { 
-        path: '/', 
-        thresholdPercent: 0.1,
-      }),
+      () =>
+        this.disk.checkStorage('disk', {
+          path: '/',
+          thresholdPercent: 0.1,
+        }),
     ]);
   }
 
@@ -57,7 +58,9 @@ export class HealthController {
   @Public()
   @Get('readiness')
   @HealthCheck()
-  @ApiOperation({ summary: 'Readiness probe - checks if app can serve traffic' })
+  @ApiOperation({
+    summary: 'Readiness probe - checks if app can serve traffic',
+  })
   readiness() {
     return this.health.check([
       () => this.db.pingCheck('database'),

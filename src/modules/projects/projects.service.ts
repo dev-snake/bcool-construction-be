@@ -183,9 +183,10 @@ export class ProjectsService extends BaseService<Project> {
 
   async findAllProjects(query: ProjectQueryDto) {
     const cacheKey = `projects:list:${JSON.stringify(query)}`;
-    const cached = await this.cacheService.get<{ items: Project[]; total: number }>(
-      cacheKey,
-    );
+    const cached = await this.cacheService.get<{
+      items: Project[];
+      total: number;
+    }>(cacheKey);
     if (cached) return cached;
 
     const { typeId, statusId, featured, published } = query;

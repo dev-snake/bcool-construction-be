@@ -53,17 +53,17 @@ export class ContactService extends BaseService<Contact> {
   // PUBLIC
   async submitForm(data: CreateContactDto) {
     const contact = this.contactRepository.create(data);
-    
+
     // Set default status if possible (New)
     const defaultStatus = await this.statusRepository.findOne({
-      where: { name: ContactStatusName.NEW }, 
+      where: { name: ContactStatusName.NEW },
     });
     if (defaultStatus) {
       contact.statusId = defaultStatus.id;
     }
-    
+
     const saved = await this.contactRepository.save(contact);
-    
+
     // Dispatch background job
     await this.contactQueue.add(JobName.CONTACT_SUBMISSION, {
       contactId: saved.id,
@@ -80,23 +80,27 @@ export class ContactService extends BaseService<Contact> {
   async findPaginatedSubmissions(query: ContactQueryDto) {
     const { typeId, statusId, email, fullName, startDate, endDate } = query;
 
-    const { items, total } = await this.findPaginated(query, 'contact', (qb) => {
-      if (typeId) qb.andWhere('contact.typeId = :typeId', { typeId });
-      if (statusId) qb.andWhere('contact.statusId = :statusId', { statusId });
-      if (email)
-        qb.andWhere('contact.email ILIKE :email', { email: `%${email}%` });
-      if (fullName)
-        qb.andWhere('contact.fullName ILIKE :fullName', {
-          fullName: `%${fullName}%`,
-        });
+    const { items, total } = await this.findPaginated(
+      query,
+      'contact',
+      (qb) => {
+        if (typeId) qb.andWhere('contact.typeId = :typeId', { typeId });
+        if (statusId) qb.andWhere('contact.statusId = :statusId', { statusId });
+        if (email)
+          qb.andWhere('contact.email ILIKE :email', { email: `%${email}%` });
+        if (fullName)
+          qb.andWhere('contact.fullName ILIKE :fullName', {
+            fullName: `%${fullName}%`,
+          });
 
-      if (startDate) {
-        qb.andWhere('contact.createdAt >= :startDate', { startDate });
-      }
-      if (endDate) {
-        qb.andWhere('contact.createdAt <= :endDate', { endDate });
-      }
-    });
+        if (startDate) {
+          qb.andWhere('contact.createdAt >= :startDate', { startDate });
+        }
+        if (endDate) {
+          qb.andWhere('contact.createdAt <= :endDate', { endDate });
+        }
+      },
+    );
 
     return {
       items,

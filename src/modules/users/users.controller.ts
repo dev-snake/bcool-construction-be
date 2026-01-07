@@ -97,4 +97,3 @@ export class UsersController {
     return this.usersService.unlock(id);
   }
 }
-

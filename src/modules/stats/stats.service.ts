@@ -34,7 +34,11 @@ export class StatsService {
   async getDashboardStats() {
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - TIME_MS.ONE_WEEK);
-    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    const oneMonthAgo = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getDate(),
+    );
 
     // 1. Blog Stats
     const totalPosts = await this.postRepository.count();
@@ -47,18 +51,20 @@ export class StatsService {
       where: { code: ProjectStatusCode.IN_PROGRESS },
     });
     const inProgressProjects = inProgressStatus
-      ? await this.projectRepository.count({ where: { statusId: inProgressStatus.id } })
+      ? await this.projectRepository.count({
+          where: { statusId: inProgressStatus.id },
+        })
       : 0;
-    
+
     const completedStatus = await this.projectStatusRepository.findOne({
       where: { code: ProjectStatusCode.COMPLETED },
     });
     const completedThisMonth = completedStatus
       ? await this.projectRepository.count({
-          where: { 
+          where: {
             statusId: completedStatus.id,
-            updatedAt: MoreThanOrEqual(oneMonthAgo)
-          }
+            updatedAt: MoreThanOrEqual(oneMonthAgo),
+          },
         })
       : 0;
 
@@ -70,7 +76,9 @@ export class StatsService {
       where: { name: ContactStatusName.NEW },
     });
     const pendingContacts = newContactStatus
-      ? await this.contactRepository.count({ where: { statusId: newContactStatus.id } })
+      ? await this.contactRepository.count({
+          where: { statusId: newContactStatus.id },
+        })
       : 0;
 
     // 5. Recent Activities
@@ -102,7 +110,7 @@ export class StatsService {
         user: log.user?.fullName || SYSTEM_USER.NAME,
         action: log.action,
         module: log.module,
-        target: log.recordId || '', 
+        target: log.recordId || '',
         time: log.createdAt,
       })),
     };

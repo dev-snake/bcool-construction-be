@@ -6,5 +6,6 @@ export default registerAs('mail', () => ({
   user: process.env.MAIL_USER,
   pass: process.env.MAIL_PASSWORD,
   from: process.env.MAIL_FROM,
-  notificationEmail: process.env.CONTACT_NOTIFICATION_EMAIL || 'dangvanhaufpt2019@gmail.com',
+  notificationEmail:
+    process.env.CONTACT_NOTIFICATION_EMAIL || 'dangvanhaufpt2019@gmail.com',
 }));

@@ -13,7 +13,9 @@ async function testS3() {
 
   console.log('--- AWS S3 Configuration ---');
   console.log(`Region: ${region}`);
-  console.log(`Access Key ID: ${accessKeyId ? '***' + accessKeyId.slice(-4) : 'MISSING'}`);
+  console.log(
+    `Access Key ID: ${accessKeyId ? '***' + accessKeyId.slice(-4) : 'MISSING'}`,
+  );
   console.log(`Secret Access Key: ${secretAccessKey ? '********' : 'MISSING'}`);
   console.log(`Bucket: ${bucket || 'MISSING'}`);
   console.log('-----------------------------\n');
@@ -33,38 +35,41 @@ async function testS3() {
 
   try {
     console.log(`Testing connection to bucket "${bucket}"...`);
-    
+
     const command = new ListObjectsV2Command({
       Bucket: bucket,
       MaxKeys: 1,
     });
 
     const response = await s3Client.send(command);
-    
+
     console.log('✅ Success! Successfully connected to S3 and listed objects.');
     console.log('Response metadata:', response.$metadata);
-    
+
     if (response.Contents && response.Contents.length > 0) {
       console.log(`Found ${response.Contents.length} object(s) in the bucket.`);
     } else {
       console.log('Bucket is empty, but connection was successful.');
     }
-
   } catch (error: any) {
     console.error('❌ S3 Connection Failed:');
     console.error(`Error Code: ${error.code || error.name}`);
     console.error(`Message: ${error.message}`);
-    
+
     if (error.name === 'InvalidAccessKeyId') {
       console.error('Tip: Check if your AWS_ACCESS_KEY_ID is correct.');
     } else if (error.name === 'SignatureDoesNotMatch') {
       console.error('Tip: Check if your AWS_SECRET_ACCESS_KEY is correct.');
     } else if (error.name === 'NoSuchBucket') {
-      console.error(`Tip: The bucket "${bucket}" does not exist in region "${region}".`);
+      console.error(
+        `Tip: The bucket "${bucket}" does not exist in region "${region}".`,
+      );
     } else if (error.name === 'AccessDenied') {
-      console.error('Tip: Your credentials do not have permission to list objects in this bucket.');
+      console.error(
+        'Tip: Your credentials do not have permission to list objects in this bucket.',
+      );
     }
-    
+
     process.exit(1);
   }
 }

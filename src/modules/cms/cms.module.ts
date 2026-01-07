@@ -9,7 +9,9 @@ import { Counter } from './entities/counter.entity';
 import { Branch } from './entities/branch.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Page, PageSection, Banner, Counter, Branch])],
+  imports: [
+    TypeOrmModule.forFeature([Page, PageSection, Banner, Counter, Branch]),
+  ],
   controllers: [CmsController],
   providers: [CmsService],
   exports: [CmsService],

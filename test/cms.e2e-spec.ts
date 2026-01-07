@@ -80,7 +80,8 @@ describe('CMS Module (e2e)', () => {
 
   describe('Banners CRUD', () => {
     let bannerId: string;
-    const bannerSlug = 'e2e-test-banner-' + Date.now() + Math.random().toString(36).substring(7);
+    const bannerSlug =
+      'e2e-test-banner-' + Date.now() + Math.random().toString(36).substring(7);
 
     it('POST /cms/banners', async () => {
       const response = await request(app.getHttpServer())
@@ -109,7 +110,10 @@ describe('CMS Module (e2e)', () => {
         .put(`/api/v1/cms/banners/${bannerId}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          title: 'Updated E2E Test Banner ' + Date.now() + Math.random().toString(36).substring(7),
+          title:
+            'Updated E2E Test Banner ' +
+            Date.now() +
+            Math.random().toString(36).substring(7),
         })
         .expect(200);
     });
@@ -152,7 +156,10 @@ describe('CMS Module (e2e)', () => {
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
           value: 200,
-          label: 'Updated Counter ' + Date.now() + Math.random().toString(36).substring(7),
+          label:
+            'Updated Counter ' +
+            Date.now() +
+            Math.random().toString(36).substring(7),
         })
         .expect(200);
     });
@@ -168,7 +175,8 @@ describe('CMS Module (e2e)', () => {
   describe('Pages & Sections CRUD', () => {
     let pageId: string;
     let sectionId: string;
-    const pageSlug = 'e2e-test-page-' + Date.now() + Math.random().toString(36).substring(7);
+    const pageSlug =
+      'e2e-test-page-' + Date.now() + Math.random().toString(36).substring(7);
 
     it('POST /cms/pages', async () => {
       const response = await request(app.getHttpServer())
@@ -219,7 +227,10 @@ describe('CMS Module (e2e)', () => {
         .put(`/api/v1/cms/sections/${sectionId}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          title: 'Updated E2E Section ' + Date.now() + Math.random().toString(36).substring(7),
+          title:
+            'Updated E2E Section ' +
+            Date.now() +
+            Math.random().toString(36).substring(7),
         })
         .expect(200);
     });

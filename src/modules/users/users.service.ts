@@ -62,18 +62,14 @@ export class UsersService extends BaseService<User> {
   async findUsersPaginated(query: UserQueryDto) {
     const { roleId, isActive } = query;
 
-    const { items, total } = await this.findPaginated(
-      query,
-      'user',
-      (qb) => {
-        if (roleId) {
-          qb.andWhere('roles.id = :roleId', { roleId });
-        }
-        if (isActive !== undefined) {
-          qb.andWhere('user.isActive = :isActive', { isActive });
-        }
-      },
-    );
+    const { items, total } = await this.findPaginated(query, 'user', (qb) => {
+      if (roleId) {
+        qb.andWhere('roles.id = :roleId', { roleId });
+      }
+      if (isActive !== undefined) {
+        qb.andWhere('user.isActive = :isActive', { isActive });
+      }
+    });
 
     return {
       items,

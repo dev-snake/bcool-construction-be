@@ -80,7 +80,10 @@ describe('Services Management (e2e)', () => {
 
   describe('Services CRUD', () => {
     let serviceId: string;
-    const serviceSlug = 'e2e-test-service-' + Date.now() + Math.random().toString(36).substring(7);
+    const serviceSlug =
+      'e2e-test-service-' +
+      Date.now() +
+      Math.random().toString(36).substring(7);
 
     it('POST /services', async () => {
       const response = await request(app.getHttpServer())
@@ -92,18 +95,20 @@ describe('Services Management (e2e)', () => {
           shortDescription: 'Short description for e2e',
           isActive: true,
         });
-      
+
       if (response.status !== 201) {
-        console.log('POST /services failed:', response.status, JSON.stringify(response.body, null, 2));
+        console.log(
+          'POST /services failed:',
+          response.status,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(201);
       serviceId = response.body.id;
     });
 
     it('GET /services (Public Hierarchical)', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/services')
-        .expect(200);
+      return request(app.getHttpServer()).get('/api/v1/services').expect(200);
     });
 
     it('GET /services (Filtering)', () => {
@@ -127,12 +132,19 @@ describe('Services Management (e2e)', () => {
         .put(`/api/v1/services/${serviceId}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          title: 'Updated E2E Test Service ' + Date.now() + Math.random().toString(36).substring(7), // Required by UpdateServiceDto (extends Create)
+          title:
+            'Updated E2E Test Service ' +
+            Date.now() +
+            Math.random().toString(36).substring(7), // Required by UpdateServiceDto (extends Create)
           isActive: true,
         });
-      
+
       if (response.status !== 200) {
-        console.log(`PUT /services/${serviceId} failed:`, response.status, JSON.stringify(response.body, null, 2));
+        console.log(
+          `PUT /services/${serviceId} failed:`,
+          response.status,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(200);
     });
@@ -145,7 +157,7 @@ describe('Services Management (e2e)', () => {
           .post(`/api/v1/services/${serviceId}/contents`)
           .set('Authorization', `Bearer ${adminToken}`)
           .send({ content: 'Detailed service content' });
-        
+
         expect(response.status).toBe(201);
         contentId = response.body.id;
       });
@@ -177,7 +189,7 @@ describe('Services Management (e2e)', () => {
             mediaUrl: 'https://example.com/service-media.jpg',
             sortOrder: 1,
           });
-        
+
         expect(response.status).toBe(201);
         mediaId = response.body.id;
       });

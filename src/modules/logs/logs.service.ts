@@ -32,9 +32,12 @@ export class LogsService extends BaseService<Log> {
 
   async findAllActivityLogs(query: LogQueryDto) {
     return this.findPaginated(query, 'log', (qb) => {
-      if (query.userId) qb.andWhere('log.userId = :userId', { userId: query.userId });
-      if (query.module) qb.andWhere('log.module = :module', { module: query.module });
-      if (query.action) qb.andWhere('log.action = :action', { action: query.action });
+      if (query.userId)
+        qb.andWhere('log.userId = :userId', { userId: query.userId });
+      if (query.module)
+        qb.andWhere('log.module = :module', { module: query.module });
+      if (query.action)
+        qb.andWhere('log.action = :action', { action: query.action });
 
       if (query.fromDate && query.toDate) {
         qb.andWhere('log.createdAt BETWEEN :fromDate AND :toDate', {

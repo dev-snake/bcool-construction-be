@@ -158,7 +158,11 @@ describe('Roles & Permissions (e2e)', () => {
         });
 
       if (response.status !== 200) {
-        console.log('PUT /roles/:id/permissions failed:', response.status, JSON.stringify(response.body, null, 2));
+        console.log(
+          'PUT /roles/:id/permissions failed:',
+          response.status,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(200);
 
@@ -166,9 +170,11 @@ describe('Roles & Permissions (e2e)', () => {
       const detailRes = await request(app.getHttpServer())
         .get(`/api/v1/roles/${roleId}`)
         .set('Authorization', `Bearer ${adminToken}`);
-      
+
       expect(detailRes.body.permissions).toBeDefined();
-      expect(detailRes.body.permissions.some(p => p.moduleId === moduleId)).toBe(true);
+      expect(
+        detailRes.body.permissions.some((p) => p.moduleId === moduleId),
+      ).toBe(true);
     });
 
     it('DELETE /roles/:id (Delete)', () => {

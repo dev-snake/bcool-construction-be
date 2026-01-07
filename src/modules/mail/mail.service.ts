@@ -20,13 +20,17 @@ export class MailService {
         },
       });
     } else {
-      this.logger.warn('SMTP Host not configured. Mail service will not send emails.');
+      this.logger.warn(
+        'SMTP Host not configured. Mail service will not send emails.',
+      );
     }
   }
 
   async sendMail(to: string, subject: string, html: string) {
     if (!this.transporter) {
-      this.logger.warn(`Skipping email to ${to} as transporter is not configured.`);
+      this.logger.warn(
+        `Skipping email to ${to} as transporter is not configured.`,
+      );
       return null;
     }
     try {
@@ -52,8 +56,9 @@ export class MailService {
     type?: string;
     message?: string;
   }) {
-    const notificationEmail =
-      this.configService.get<string>('mail.notificationEmail');
+    const notificationEmail = this.configService.get<string>(
+      'mail.notificationEmail',
+    );
     const subject = `🔥 Yêu cầu liên hệ mới: ${contactData.fullName}`;
 
     const html = `

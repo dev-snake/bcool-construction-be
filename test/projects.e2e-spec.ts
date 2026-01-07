@@ -111,7 +111,10 @@ describe('Projects Module (e2e)', () => {
           name: 'Updated Test Status',
         });
       if (response.status >= 400) {
-        console.log(`PUT /project-statuses/${statusId} failed with ${response.status}:`, JSON.stringify(response.body, null, 2));
+        console.log(
+          `PUT /project-statuses/${statusId} failed with ${response.status}:`,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(200);
     });
@@ -156,7 +159,10 @@ describe('Projects Module (e2e)', () => {
           name: 'Updated Test Type',
         });
       if (response.status >= 400) {
-        console.log(`PUT /project-types/${typeId} failed with ${response.status}:`, JSON.stringify(response.body, null, 2));
+        console.log(
+          `PUT /project-types/${typeId} failed with ${response.status}:`,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(200);
     });
@@ -173,7 +179,10 @@ describe('Projects Module (e2e)', () => {
     let projectId: string;
     let projStatusId: string;
     let projTypeId: string;
-    const projectSlug = 'e2e-test-project-' + Date.now() + Math.random().toString(36).substring(7);
+    const projectSlug =
+      'e2e-test-project-' +
+      Date.now() +
+      Math.random().toString(36).substring(7);
 
     beforeAll(async () => {
       // Create status and type for project
@@ -200,7 +209,7 @@ describe('Projects Module (e2e)', () => {
           statusId: projStatusId,
           projectTypeId: projTypeId,
           contents: [{ content: 'Nested content' }],
-          media: [{ mediaUrl: 'https://example.com/proj-nested.jpg' }]
+          media: [{ mediaUrl: 'https://example.com/proj-nested.jpg' }],
         });
 
       expect(response.status).toBe(201);

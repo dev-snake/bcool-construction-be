@@ -24,7 +24,9 @@ export class RedisHealthIndicator extends HealthIndicator {
 
       throw new HealthCheckError(
         'Redis check failed',
-        this.getStatus(key, false, { message: 'Redis did not respond with PONG' }),
+        this.getStatus(key, false, {
+          message: 'Redis did not respond with PONG',
+        }),
       );
     } catch (error) {
       throw new HealthCheckError(

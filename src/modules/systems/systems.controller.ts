@@ -6,12 +6,21 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { SystemsService } from './systems.service';
 import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
-import { SystemModule, PermissionAction } from '../../common/enums/permission.enum';
+import {
+  SystemModule,
+  PermissionAction,
+} from '../../common/enums/permission.enum';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 
@@ -64,8 +73,15 @@ export class SystemsController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(
+            null,
+            file.fieldname +
+              '-' +
+              uniqueSuffix +
+              path.extname(file.originalname),
+          );
         },
       }),
     }),

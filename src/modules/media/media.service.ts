@@ -28,7 +28,9 @@ export class MediaService extends BaseService<Media> {
     });
   }
 
-  protected getQueryBuilder(alias: string = 'media'): SelectQueryBuilder<Media> {
+  protected getQueryBuilder(
+    alias: string = 'media',
+  ): SelectQueryBuilder<Media> {
     return this.mediaRepository
       .createQueryBuilder(alias)
       .leftJoinAndSelect(`${alias}.uploadedBy`, 'uploadedBy');
@@ -38,10 +40,10 @@ export class MediaService extends BaseService<Media> {
     const bucket = this.configService.get<string>('s3.bucket');
     const region = this.configService.get<string>('s3.region');
     const publicUrl = this.configService.get<string>('s3.publicUrl');
-    
+
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const fileName = `media-${uniqueSuffix}${path.extname(file.originalname)}`;
-    
+
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: bucket,
@@ -51,7 +53,7 @@ export class MediaService extends BaseService<Media> {
       }),
     );
 
-    const fileUrl = publicUrl 
+    const fileUrl = publicUrl
       ? `${publicUrl}/${fileName}`
       : `https://${bucket}.s3.${region}.amazonaws.com/${fileName}`;
 

@@ -1,6 +1,10 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, VersioningType, ClassSerializerInterceptor } from '@nestjs/common';
+import {
+  ValidationPipe,
+  VersioningType,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -15,9 +19,11 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Security
-  app.use(helmet({
-    crossOriginResourcePolicy: false,
-  }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
   app.enableCors({
     origin: true,
     credentials: true,

@@ -33,7 +33,7 @@ export class SystemsService {
     try {
       // Direct command with environment variables for password to avoid interactive prompt
       const cmd = `PGPASSWORD='${dbConfig.password}' pg_dump -h ${dbConfig.host} -p ${dbConfig.port} -U ${dbConfig.username} -d ${dbConfig.database} -f ${filePath}`;
-      
+
       await execPromise(cmd);
 
       res.download(filePath, fileName, (err) => {
@@ -76,7 +76,11 @@ export class SystemsService {
         fullName: user.fullName,
         phone: user.phone,
         roles: user.roles?.map((r) => r.name).join(', '),
-        status: user.isActive ? (user.isLocked ? 'Locked' : 'Active') : 'Inactive',
+        status: user.isActive
+          ? user.isLocked
+            ? 'Locked'
+            : 'Active'
+          : 'Inactive',
         createdAt: user.createdAt,
       });
     });
@@ -101,7 +105,7 @@ export class SystemsService {
     if (!worksheet) {
       throw new Error('Worksheet not found');
     }
-    
+
     const usersToCreate: any[] = [];
     const rolesMap = new Map();
 
@@ -125,7 +129,9 @@ export class SystemsService {
     });
 
     for (const userData of usersToCreate) {
-      const existingUser = await this.userRepository.findOne({ where: { email: userData.email } });
+      const existingUser = await this.userRepository.findOne({
+        where: { email: userData.email },
+      });
       if (existingUser) continue;
 
       const newUser = this.userRepository.create({
@@ -134,11 +140,12 @@ export class SystemsService {
         phone: userData.phone,
         isActive: true,
         // Default password for imported users - should be changed
-        passwordHash: '$2b$10$ru9XXL2t6rDvVe3lh3McL.fR7PCHjcGZmo03JG0P1BedSZd.0NsWK', 
+        passwordHash:
+          '$2b$10$ru9XXL2t6rDvVe3lh3McL.fR7PCHjcGZmo03JG0P1BedSZd.0NsWK',
       });
 
       if (userData.rolesStr) {
-        const roleNames = userData.rolesStr.split(',').map(s => s.trim());
+        const roleNames = userData.rolesStr.split(',').map((s) => s.trim());
         const roles: Role[] = [];
         for (const name of roleNames) {
           let role = rolesMap.get(name);
@@ -156,7 +163,10 @@ export class SystemsService {
 
     // Cleanup uploaded file
     fs.unlinkSync(file.path);
-    
-    return { message: 'Users imported successfully', count: usersToCreate.length };
+
+    return {
+      message: 'Users imported successfully',
+      count: usersToCreate.length,
+    };
   }
 }

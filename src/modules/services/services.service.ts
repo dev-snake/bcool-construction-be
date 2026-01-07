@@ -35,7 +35,9 @@ export class ServicesService extends BaseService<Service> {
     super(serviceRepository);
   }
 
-  protected getQueryBuilder(alias: string = 'service'): SelectQueryBuilder<Service> {
+  protected getQueryBuilder(
+    alias: string = 'service',
+  ): SelectQueryBuilder<Service> {
     return this.serviceRepository
       .createQueryBuilder(alias)
       .leftJoinAndSelect(`${alias}.children`, 'children')
@@ -50,7 +52,10 @@ export class ServicesService extends BaseService<Service> {
 
   async findHierarchical(query: ServiceQueryDto) {
     const cacheKey = `services:list:${JSON.stringify(query)}`;
-    const cached = await this.cacheService.get<{ items: Service[]; total: number }>(cacheKey);
+    const cached = await this.cacheService.get<{
+      items: Service[];
+      total: number;
+    }>(cacheKey);
     if (cached) return cached;
 
     const { isActive } = query;
@@ -64,7 +69,7 @@ export class ServicesService extends BaseService<Service> {
 
     // Default sort for hierarchical services
     if (!query.sortBy) {
-        result.items.sort((a, b) => a.sortOrder - b.sortOrder);
+      result.items.sort((a, b) => a.sortOrder - b.sortOrder);
     }
 
     await this.cacheService.set(cacheKey, result, 3600);

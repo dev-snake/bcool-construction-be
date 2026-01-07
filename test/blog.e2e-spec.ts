@@ -80,7 +80,8 @@ describe('Blog Management (e2e)', () => {
 
   describe('Blog Categories CRUD', () => {
     let categoryId: string;
-    const categoryName = 'E2E Category ' + Date.now() + Math.random().toString(36).substring(7);
+    const categoryName =
+      'E2E Category ' + Date.now() + Math.random().toString(36).substring(7);
 
     it('POST /blog/categories', async () => {
       const response = await request(app.getHttpServer())
@@ -88,7 +89,11 @@ describe('Blog Management (e2e)', () => {
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ name: categoryName });
       if (response.status !== 201) {
-        console.log('POST /blog/categories failed:', response.status, JSON.stringify(response.body, null, 2));
+        console.log(
+          'POST /blog/categories failed:',
+          response.status,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(201);
       categoryId = response.body.id;
@@ -104,13 +109,20 @@ describe('Blog Management (e2e)', () => {
       const response = await request(app.getHttpServer())
         .put(`/api/v1/blog/categories/${categoryId}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ 
+        .send({
           name: categoryName + ' Updated',
-          slug: 'updated-cat-' + Date.now() + Math.random().toString(36).substring(7)
+          slug:
+            'updated-cat-' +
+            Date.now() +
+            Math.random().toString(36).substring(7),
         });
-      
+
       if (response.status !== 200) {
-        console.log(`PUT /blog/categories/${categoryId} failed:`, response.status, JSON.stringify(response.body, null, 2));
+        console.log(
+          `PUT /blog/categories/${categoryId} failed:`,
+          response.status,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(200);
     });
@@ -126,20 +138,30 @@ describe('Blog Management (e2e)', () => {
   describe('Blog Posts CRUD', () => {
     let postId: string;
     let categoryId: string;
-    const postSlug = 'e2e-test-post-' + Date.now() + Math.random().toString(36).substring(7);
+    const postSlug =
+      'e2e-test-post-' + Date.now() + Math.random().toString(36).substring(7);
 
     beforeAll(async () => {
-        // Create a unique category for the post
-        const catRes = await request(app.getHttpServer())
-            .post('/api/v1/blog/categories')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'Post Category ' + Date.now() + Math.random().toString(36).substring(7) });
-        
-        if (catRes.status !== 201) {
-          console.log('BEFORE ALL: Category creation failed:', catRes.status, JSON.stringify(catRes.body, null, 2));
-        }
-        
-        categoryId = catRes.body.id;
+      // Create a unique category for the post
+      const catRes = await request(app.getHttpServer())
+        .post('/api/v1/blog/categories')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name:
+            'Post Category ' +
+            Date.now() +
+            Math.random().toString(36).substring(7),
+        });
+
+      if (catRes.status !== 201) {
+        console.log(
+          'BEFORE ALL: Category creation failed:',
+          catRes.status,
+          JSON.stringify(catRes.body, null, 2),
+        );
+      }
+
+      categoryId = catRes.body.id;
     });
 
     it('POST /blog', async () => {
@@ -154,7 +176,11 @@ describe('Blog Management (e2e)', () => {
           isPublished: true,
         });
       if (response.status !== 201) {
-        console.log('POST /blog failed:', response.status, JSON.stringify(response.body, null, 2));
+        console.log(
+          'POST /blog failed:',
+          response.status,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(201);
       postId = response.body.id;
@@ -200,14 +226,21 @@ describe('Blog Management (e2e)', () => {
       const response = await request(app.getHttpServer())
         .put(`/api/v1/blog/${postId}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ 
-          title: 'Updated E2E Post ' + Date.now() + Math.random().toString(36).substring(7),
+        .send({
+          title:
+            'Updated E2E Post ' +
+            Date.now() +
+            Math.random().toString(36).substring(7),
           categoryId: categoryId, // Required by UpdatePostDto
-          isPublished: true
+          isPublished: true,
         });
-      
+
       if (response.status !== 200) {
-        console.log(`PUT /blog/${postId} failed:`, response.status, JSON.stringify(response.body, null, 2));
+        console.log(
+          `PUT /blog/${postId} failed:`,
+          response.status,
+          JSON.stringify(response.body, null, 2),
+        );
       }
       expect(response.status).toBe(200);
     });
@@ -216,7 +249,7 @@ describe('Blog Management (e2e)', () => {
       const response = await request(app.getHttpServer())
         .delete(`/api/v1/blog/categories/${categoryId}`)
         .set('Authorization', `Bearer ${adminToken}`);
-      
+
       // Based on BlogService, should throw ConflictException if category has posts
       expect(response.status).toBe(409);
     });

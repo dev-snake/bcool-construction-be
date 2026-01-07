@@ -15,9 +15,18 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
-import { SystemModule, PermissionAction } from '../../common/enums/permission.enum';
+import {
+  SystemModule,
+  PermissionAction,
+} from '../../common/enums/permission.enum';
 import { CreateMediaDto, MediaQueryDto } from './dto/media.dto';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 
 @ApiTags('Media')
 @Controller('media')

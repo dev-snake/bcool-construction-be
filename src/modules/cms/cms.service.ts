@@ -178,7 +178,9 @@ export class CmsService extends BaseService<Page> {
   }
 
   async findBranchById(id: string) {
-    const branch = await this.branchRepository.findOne({ where: { id } as any });
+    const branch = await this.branchRepository.findOne({
+      where: { id } as any,
+    });
     if (!branch) throw new NotFoundException('Branch not found');
     return branch;
   }
