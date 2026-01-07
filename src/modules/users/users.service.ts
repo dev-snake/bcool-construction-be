@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
+import { PaginationUtil } from '../../common/utils/pagination.util';
 import { User } from './entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { CryptoUtil } from '../../common/utils/crypto.util';
@@ -54,7 +55,8 @@ export class UsersService extends BaseService<User> {
   }
 
   async findUsersPaginated(query: UserQueryDto) {
-    const { page = 1, limit = 10, search, roleId, isActive } = query;
+    const { search, roleId, isActive } = query;
+    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
 
     const qb = this.userRepository
       .createQueryBuilder('user')
@@ -76,8 +78,8 @@ export class UsersService extends BaseService<User> {
     }
 
     qb.orderBy('user.createdAt', 'DESC')
-      .take(limit)
-      .skip((page - 1) * limit);
+      .take(take)
+      .skip(skip);
 
     const [items, total] = await qb.getManyAndCount();
 
@@ -85,9 +87,9 @@ export class UsersService extends BaseService<User> {
       items,
       meta: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        page: query.page || 1,
+        limit: take,
+        totalPages: Math.ceil(total / take),
       },
     };
   }
