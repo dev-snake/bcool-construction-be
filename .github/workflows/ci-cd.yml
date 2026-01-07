@@ -61,7 +61,7 @@ jobs:
       - name: Run unit tests
         run: yarn test
         env:
-          DB_TYPE: postgres
+          DB_TYPE: ${{ secrets.DB_TYPE || 'postgres' }}
           DB_HOST: localhost
           DB_PORT: 5432
           DB_USERNAME: postgres
@@ -69,13 +69,13 @@ jobs:
           DB_DATABASE: test_db
           REDIS_HOST: localhost
           REDIS_PORT: 6379
-          JWT_SECRET: test-jwt-secret
+          JWT_SECRET: ${{ secrets.JWT_SECRET  }}
           NODE_ENV: test
 
       - name: Run E2E tests
         run: yarn test:e2e
         env:
-          DB_TYPE: postgres
+          DB_TYPE: ${{ secrets.DB_TYPE || 'postgres' }}
           DB_HOST: localhost
           DB_PORT: 5432
           DB_USERNAME: postgres
@@ -83,7 +83,7 @@ jobs:
           DB_DATABASE: test_db
           REDIS_HOST: localhost
           REDIS_PORT: 6379
-          JWT_SECRET: test-jwt-secret
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-jwt-secret' }}
           NODE_ENV: test
 
   # ==================== BUILD ====================
@@ -178,8 +178,33 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.STAGING_APP_PATH }}
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+
+            # Create/Update .env.production from secrets
+            cat <<EOF > .env.production
+            NODE_ENV=production
+            DB_TYPE=${{ secrets.DB_TYPE }}
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_DATABASE=${{ secrets.DB_DATABASE }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_REGION=${{ secrets.AWS_REGION }}
+            AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+            MAIL_HOST=${{ secrets.MAIL_HOST }}
+            MAIL_PORT=${{ secrets.MAIL_PORT }}
+            MAIL_USER=${{ secrets.MAIL_USER }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            MAIL_FROM=${{ secrets.MAIL_FROM }}
+            EOF
+
+            docker compose -f docker/docker-compose.prod.yml pull
+            docker compose -f docker/docker-compose.prod.yml up -d
             docker image prune -f
             echo "✅ Staging deployment completed!"
 
@@ -199,7 +224,32 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.PRODUCTION_APP_PATH }}
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+
+            # Create/Update .env.production from secrets
+            cat <<EOF > .env.production
+            NODE_ENV=production
+            DB_TYPE=${{ secrets.DB_TYPE }}
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_DATABASE=${{ secrets.DB_DATABASE }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_REGION=${{ secrets.AWS_REGION }}
+            AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+            MAIL_HOST=${{ secrets.MAIL_HOST }}
+            MAIL_PORT=${{ secrets.MAIL_PORT }}
+            MAIL_USER=${{ secrets.MAIL_USER }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            MAIL_FROM=${{ secrets.MAIL_FROM }}
+            EOF
+
+            docker compose -f docker/docker-compose.prod.yml pull
+            docker compose -f docker/docker-compose.prod.yml up -d
             docker image prune -f
             echo "✅ Production deployment completed!"
