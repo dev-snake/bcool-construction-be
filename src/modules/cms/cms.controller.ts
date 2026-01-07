@@ -27,6 +27,7 @@ import {
   CreatePageDto,
   UpdatePageDto,
 } from './dto/page.dto';
+import { CreateBranchDto, UpdateBranchDto } from './dto/branch.dto';
 
 @ApiTags('CMS')
 @Controller('cms')
@@ -243,5 +244,61 @@ export class CmsController {
   @ApiOperation({ summary: 'Admin: Delete section' })
   removeSection(@Param('id') id: string) {
     return this.cmsService.removeSection(id);
+  }
+
+  // BRANCHES
+  @Public()
+  @Get('branches')
+  @ApiOperation({ summary: 'Get active branches' })
+  getBranches() {
+    return this.cmsService.findAllBranches(false);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.VIEW,
+  })
+  @Get('admin/branches')
+  @ApiOperation({ summary: 'Admin: Get all branches' })
+  getAdminBranches() {
+    return this.cmsService.findAllBranches(true);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.CREATE,
+  })
+  @Post('branches')
+  @ApiOperation({ summary: 'Admin: Create new branch' })
+  createBranch(@Body() dto: CreateBranchDto) {
+    return this.cmsService.createBranch(dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.UPDATE,
+  })
+  @Put('branches/:id')
+  @ApiOperation({ summary: 'Admin: Update branch' })
+  updateBranch(@Param('id') id: string, @Body() dto: UpdateBranchDto) {
+    return this.cmsService.updateBranch(id, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({
+    module: SystemModule.CMS,
+    action: PermissionAction.DELETE,
+  })
+  @Delete('branches/:id')
+  @ApiOperation({ summary: 'Admin: Delete branch' })
+  removeBranch(@Param('id') id: string) {
+    return this.cmsService.removeBranch(id);
   }
 }

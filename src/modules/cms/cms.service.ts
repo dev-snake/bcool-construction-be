@@ -12,7 +12,11 @@ import {
   CreatePageSectionDto,
   UpdatePageSectionDto,
   PageQueryDto,
+  CreatePageDto,
+  UpdatePageDto,
 } from './dto/page.dto';
+import { Branch } from './entities/branch.entity';
+import { CreateBranchDto, UpdateBranchDto } from './dto/branch.dto';
 
 @Injectable()
 export class CmsService extends BaseService<Page> {
@@ -25,13 +29,15 @@ export class CmsService extends BaseService<Page> {
     private readonly bannerRepository: Repository<Banner>,
     @InjectRepository(Counter)
     private readonly counterRepository: Repository<Counter>,
+    @InjectRepository(Branch)
+    private readonly branchRepository: Repository<Branch>,
   ) {
     super(pageRepository);
   }
 
   // PAGES
   async findAllPages(query: PageQueryDto) {
-    const { page, limit, search } = query;
+    const { page = 1, limit = 10, search } = query;
     const skip = (page - 1) * limit;
 
     const queryBuilder = this.pageRepository.createQueryBuilder('page');
@@ -172,5 +178,30 @@ export class CmsService extends BaseService<Page> {
       counters,
       sections: homePage?.sections || [],
     };
+  }
+
+  // BRANCHES
+  async findAllBranches(admin = false) {
+    const where: any = {};
+    if (!admin) where.isVisible = true;
+
+    return this.branchRepository.find({
+      where,
+      order: { sortOrder: 'ASC' },
+    });
+  }
+
+  async createBranch(dto: CreateBranchDto) {
+    const branch = this.branchRepository.create(dto);
+    return this.branchRepository.save(branch);
+  }
+
+  async updateBranch(id: string, dto: UpdateBranchDto) {
+    await this.branchRepository.update(id, dto);
+    return this.branchRepository.findOne({ where: { id } as any });
+  }
+
+  async removeBranch(id: string) {
+    return this.branchRepository.delete(id);
   }
 }

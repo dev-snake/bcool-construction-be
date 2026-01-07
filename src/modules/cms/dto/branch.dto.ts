@@ -4,88 +4,103 @@ import {
   IsOptional,
   IsBoolean,
   IsInt,
-  IsArray,
-  ValidateNested,
-  Min,
+  IsEmail,
+  IsNumber,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreatePageDto {
+export class CreateBranchDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  slug: string;
+  name: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  title: string;
+  address: string;
 
-  @ApiProperty({ required: false, default: true })
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  workingHours?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
+
+  @ApiProperty({ required: false, default: false })
   @IsOptional()
   @IsBoolean()
-  isPublished?: boolean;
-}
-
-export class UpdatePageDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  slug?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  title?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsBoolean()
-  isPublished?: boolean;
-}
-
-export class CreatePageSectionDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  title?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  content?: string;
+  isMainBranch?: boolean;
 
   @ApiProperty({ required: false, default: 0 })
   @IsOptional()
   @IsInt()
   sortOrder?: number;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  type?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  metadata?: Record<string, any>;
-
   @ApiProperty({ required: false, default: true })
   @IsOptional()
   @IsBoolean()
   isVisible?: boolean;
 }
 
-export class UpdatePageSectionDto {
+export class UpdateBranchDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  title?: string;
+  name?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  content?: string;
+  address?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  workingHours?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isMainBranch?: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -94,36 +109,6 @@ export class UpdatePageSectionDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
-  type?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  metadata?: Record<string, any>;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsBoolean()
   isVisible?: boolean;
-}
-
-export class PageQueryDto {
-  @ApiProperty({ required: false, default: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number = 1;
-
-  @ApiProperty({ required: false, default: 10 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  limit?: number = 10;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  search?: string;
 }

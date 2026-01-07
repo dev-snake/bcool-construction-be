@@ -15,6 +15,7 @@ import { Project } from '../modules/projects/entities/project.entity';
 import { ProjectMedia } from '../modules/projects/entities/project-media.entity';
 import { Banner } from '../modules/cms/entities/banner.entity';
 import { Counter } from '../modules/cms/entities/counter.entity';
+import { Branch } from '../modules/cms/entities/branch.entity';
 import Redis from 'ioredis';
 
 async function seed() {
@@ -355,8 +356,48 @@ async function seed() {
       { label: 'Nhân sự thâm niên', value: 45, sortOrder: 4 },
     ];
     await counterRepo.save(counterRepo.create(counters));
+
+    // 15. Seed CMS Branches
+    console.log('Seeding branches...');
+    const branchRepo = AppDataSource.getRepository(Branch);
+    const branches = [
+      {
+        name: 'Hà Nội (Trụ sở chính)',
+        address: '123 Phố Lạc Trung, phường Vĩnh Tuy, quận Hai Bà Trưng, Hà Nội',
+        phone: '+84(24) 3821 7886',
+        email: 'info@bcoolgroup.vn',
+        workingHours: 'Thứ 2 - Thứ 7: 08:00 - 17:30',
+        latitude: 21.0028,
+        longitude: 105.8656,
+        isMainBranch: true,
+        sortOrder: 1,
+      },
+      {
+        name: 'TP. Hồ Chí Minh',
+        address: 'Số 9 Đường D2, Saigon Pearl, 92 Nguyễn Hữu Cảnh, TP. Hồ Chí Minh',
+        phone: '+84(28) 7106 4568',
+        email: 'infovpdd@bcoolgroup.vn',
+        workingHours: 'Thứ 2 - Thứ 7: 08:00 - 17:30',
+        latitude: 10.7936,
+        longitude: 106.7214,
+        isMainBranch: false,
+        sortOrder: 2,
+      },
+      {
+        name: 'Văn phòng Đà Nẵng',
+        address: 'Số 456 Đường Nguyễn Hữu Thọ, Quận Cẩm Lệ, TP. Đà Nẵng',
+        phone: '+84(23) 6368 8888',
+        email: 'danang@bcoolgroup.vn',
+        workingHours: 'Thứ 2 - Thứ 7: 08:00 - 17:30',
+        latitude: 16.0365,
+        longitude: 108.2022,
+        isMainBranch: false,
+        sortOrder: 3,
+      },
+    ];
+    await branchRepo.save(branchRepo.create(branches));
     
-    // 15. Clear Cache
+    // 16. Clear Cache
     console.log('Clearing Redis cache...');
     const redis = new Redis({
       host: process.env.REDIS_HOST || 'localhost',
