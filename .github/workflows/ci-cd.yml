@@ -83,7 +83,7 @@ jobs:
           DB_DATABASE: test_db
           REDIS_HOST: localhost
           REDIS_PORT: 6379
-          JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-jwt-secret' }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           NODE_ENV: test
 
   # ==================== BUILD ====================

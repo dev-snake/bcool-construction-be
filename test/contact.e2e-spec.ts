@@ -174,7 +174,7 @@ describe('Contact Module (e2e)', () => {
         .send({
           fullName: 'Tester',
           email: 'tester@example.com',
-          phone: '0123456789',
+          phone: '0912345678',
           message: 'Help me!',
           typeId,
         });

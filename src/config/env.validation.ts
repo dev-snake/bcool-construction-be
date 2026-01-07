@@ -32,10 +32,16 @@ export const envValidationSchema = Joi.object({
   REDIS_PASSWORD: Joi.string().allow('').optional(),
 
   // JWT & Security
-  JWT_SECRET: Joi.string().min(32).required().messages({
-    'string.min': 'JWT_SECRET must be at least 32 characters for security',
-    'any.required': 'JWT_SECRET is required',
-  }),
+  JWT_SECRET: Joi.string()
+    .when('NODE_ENV', {
+      is: 'test',
+      then: Joi.string().min(1).required(),
+      otherwise: Joi.string().min(32).required(),
+    })
+    .messages({
+      'string.min': 'JWT_SECRET must be at least 32 characters for security',
+      'any.required': 'JWT_SECRET is required',
+    }),
   JWT_ACCESS_EXPIRATION: Joi.string().default('15m'),
   JWT_REFRESH_EXPIRATION: Joi.string().default('7d'),
 

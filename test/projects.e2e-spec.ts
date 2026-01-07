@@ -238,9 +238,9 @@ describe('Projects Module (e2e)', () => {
         });
     });
 
-    it('GET /projects/admin/all (Admin Find All)', () => {
+    it('GET /projects/all (Admin Find All)', () => {
       return request(app.getHttpServer())
-        .get('/api/v1/projects/admin/all')
+        .get('/api/v1/projects/all')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200);
     });

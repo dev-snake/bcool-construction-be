@@ -14,8 +14,8 @@ import { LogQueryDto, LoginLogQueryDto } from './dto/log.dto';
 export class LogsController {
   constructor(private readonly logsService: LogsService) {}
 
-  /*
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @CheckPermission({ module: SystemModule.LOGS, action: PermissionAction.VIEW })
   @Get('activity')
   @ApiOperation({ summary: 'Admin: Get all activity logs' })
@@ -31,5 +31,4 @@ export class LogsController {
   findAllLogin(@Query() query: LoginLogQueryDto) {
     return this.logsService.findAllLoginLogs(query);
   }
-*/
 }
