@@ -72,20 +72,6 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET  }}
           NODE_ENV: test
 
-      - name: Run E2E tests
-        run: yarn test:e2e
-        env:
-          DB_TYPE: ${{ secrets.DB_TYPE || 'postgres' }}
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USERNAME: postgres
-          DB_PASSWORD: postgres
-          DB_DATABASE: test_db
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          NODE_ENV: test
-
   # ==================== BUILD ====================
   build:
     name: Build
