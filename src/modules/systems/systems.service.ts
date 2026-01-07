@@ -113,10 +113,10 @@ export class SystemsService {
     worksheet.eachRow({ includeEmpty: false }, async (row, rowNumber) => {
       if (rowNumber === 1) return;
 
-      const email = row.getCell(2).value?.toString();
-      const fullName = row.getCell(3).value?.toString();
-      const phone = row.getCell(4).value?.toString();
-      const rolesStr = row.getCell(5).value?.toString();
+      const email = row.getCell(2).text;
+      const fullName = row.getCell(3).text;
+      const phone = row.getCell(4).text;
+      const rolesStr = row.getCell(5).text;
 
       if (email) {
         usersToCreate.push({

@@ -2,7 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { INestApplication } from '@nestjs/common';
 
 export class TestUtils {
-  static async getAdminToken(app: INestApplication): Promise<string> {
+  static getAdminToken(app: INestApplication): string {
     const jwtService = app.get(JwtService);
     // Mock a payload for an admin user
     // In a real scenario, you might want to create a user in the database
