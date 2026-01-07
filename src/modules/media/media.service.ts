@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Media } from './entities/media.entity';
 import { CreateMediaDto, MediaQueryDto } from './dto/media.dto';
-import { PaginationUtil } from '../../common/utils/pagination.util';
 import { ConfigService } from '@nestjs/config';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import * as path from 'path';
 
 @Injectable()
 export class MediaService extends BaseService<Media> {
+  protected searchableFields = ['fileName'];
   private s3Client: S3Client;
 
   constructor(
@@ -26,6 +26,12 @@ export class MediaService extends BaseService<Media> {
         secretAccessKey: this.configService.get<string>('s3.secretAccessKey')!,
       },
     });
+  }
+
+  protected getQueryBuilder(alias: string = 'media'): SelectQueryBuilder<Media> {
+    return this.mediaRepository
+      .createQueryBuilder(alias)
+      .leftJoinAndSelect(`${alias}.uploadedBy`, 'uploadedBy');
   }
 
   async uploadFile(file: Express.Multer.File, userId?: string) {
@@ -60,24 +66,18 @@ export class MediaService extends BaseService<Media> {
   }
 
   async findAllMedia(query: MediaQueryDto) {
-    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
-    const where: any = {};
-
-    if (query.uploadedById) where.uploadedById = query.uploadedById;
-    if (query.fileType) where.fileType = Like(`%${query.fileType}%`);
-    if (query.search) {
-      where.fileName = Like(`%${query.search}%`);
-    }
-
-    const [items, total] = await this.mediaRepository.findAndCount({
-      where,
-      relations: ['uploadedBy'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
+    return this.findPaginated(query, 'media', (qb) => {
+      if (query.uploadedById) {
+        qb.andWhere('media.uploadedById = :uploadedById', {
+          uploadedById: query.uploadedById,
+        });
+      }
+      if (query.fileType) {
+        qb.andWhere('media.fileType ILIKE :fileType', {
+          fileType: `%${query.fileType}%`,
+        });
+      }
     });
-
-    return { items, total };
   }
 
   async findDetail(id: string) {

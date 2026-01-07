@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import {
+  Repository,
+  Between,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Log } from './entities/log.entity';
 import { LoginLog } from './entities/login-log.entity';
@@ -18,34 +24,29 @@ export class LogsService extends BaseService<Log> {
     super(logRepository);
   }
 
+  protected getQueryBuilder(alias: string = 'log'): SelectQueryBuilder<Log> {
+    return this.logRepository
+      .createQueryBuilder(alias)
+      .leftJoinAndSelect(`${alias}.user`, 'user');
+  }
+
   async findAllActivityLogs(query: LogQueryDto) {
-    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
-    const where: any = {};
+    return this.findPaginated(query, 'log', (qb) => {
+      if (query.userId) qb.andWhere('log.userId = :userId', { userId: query.userId });
+      if (query.module) qb.andWhere('log.module = :module', { module: query.module });
+      if (query.action) qb.andWhere('log.action = :action', { action: query.action });
 
-    if (query.userId) where.userId = query.userId;
-    if (query.module) where.module = query.module;
-    if (query.action) where.action = query.action;
-
-    if (query.fromDate && query.toDate) {
-      where.createdAt = Between(
-        new Date(query.fromDate),
-        new Date(query.toDate),
-      );
-    } else if (query.fromDate) {
-      where.createdAt = MoreThanOrEqual(new Date(query.fromDate));
-    } else if (query.toDate) {
-      where.createdAt = LessThanOrEqual(new Date(query.toDate));
-    }
-
-    const [items, total] = await this.logRepository.findAndCount({
-      where,
-      relations: ['user'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
+      if (query.fromDate && query.toDate) {
+        qb.andWhere('log.createdAt BETWEEN :fromDate AND :toDate', {
+          fromDate: query.fromDate,
+          toDate: query.toDate,
+        });
+      } else if (query.fromDate) {
+        qb.andWhere('log.createdAt >= :fromDate', { fromDate: query.fromDate });
+      } else if (query.toDate) {
+        qb.andWhere('log.createdAt <= :toDate', { toDate: query.toDate });
+      }
     });
-
-    return { items, total };
   }
 
   async createActivityLog(data: any) {
@@ -60,29 +61,27 @@ export class LogsService extends BaseService<Log> {
 
   async findAllLoginLogs(query: LoginLogQueryDto) {
     const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
-    const where: any = {};
+    const qb = this.loginLogRepository
+      .createQueryBuilder('log')
+      .leftJoinAndSelect('log.user', 'user');
 
-    if (query.userId) where.userId = query.userId;
+    if (query.userId)
+      qb.andWhere('log.userId = :userId', { userId: query.userId });
 
     if (query.fromDate && query.toDate) {
-      where.createdAt = Between(
-        new Date(query.fromDate),
-        new Date(query.toDate),
-      );
+      qb.andWhere('log.createdAt BETWEEN :fromDate AND :toDate', {
+        fromDate: query.fromDate,
+        toDate: query.toDate,
+      });
     } else if (query.fromDate) {
-      where.createdAt = MoreThanOrEqual(new Date(query.fromDate));
+      qb.andWhere('log.createdAt >= :fromDate', { fromDate: query.fromDate });
     } else if (query.toDate) {
-      where.createdAt = LessThanOrEqual(new Date(query.toDate));
+      qb.andWhere('log.createdAt <= :toDate', { toDate: query.toDate });
     }
 
-    const [items, total] = await this.loginLogRepository.findAndCount({
-      where,
-      relations: ['user'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
-    });
+    qb.orderBy('log.createdAt', 'DESC').skip(skip).take(take);
 
+    const [items, total] = await qb.getManyAndCount();
     return { items, total };
   }
 }

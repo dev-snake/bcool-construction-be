@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
-import { PaginationUtil } from '../../common/utils/pagination.util';
 import { Page } from './entities/page.entity';
 import { PageSection } from './entities/page-section.entity';
 import { Banner } from './entities/banner.entity';
@@ -21,6 +20,8 @@ import { CreateBranchDto, UpdateBranchDto } from './dto/branch.dto';
 
 @Injectable()
 export class CmsService extends BaseService<Page> {
+  protected searchableFields = ['title', 'slug'];
+
   constructor(
     @InjectRepository(Page)
     private readonly pageRepository: Repository<Page>,
@@ -38,23 +39,7 @@ export class CmsService extends BaseService<Page> {
 
   // PAGES
   async findAllPages(query: PageQueryDto) {
-    const { search } = query;
-    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
-
-    const queryBuilder = this.pageRepository.createQueryBuilder('page');
-
-    if (search) {
-      queryBuilder.where(
-        'page.title ILIKE :search OR page.slug ILIKE :search',
-        { search: `%${search}%` },
-      );
-    }
-
-    queryBuilder.orderBy('page.createdAt', 'DESC');
-    queryBuilder.skip(skip).take(take);
-
-    const [items, total] = await queryBuilder.getManyAndCount();
-    return { items, total };
+    return this.findPaginated(query, 'page');
   }
 
   async findPageBySlug(slug: string) {

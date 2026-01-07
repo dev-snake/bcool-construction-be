@@ -4,7 +4,11 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual, ILike } from 'typeorm';
+import {
+  Repository,
+  LessThanOrEqual,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Post } from './entities/post.entity';
 import { PostCategory } from './entities/post-category.entity';
@@ -15,12 +19,13 @@ import {
   UpdatePostDto,
 } from './dto/blog-post.dto';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/blog-category.dto';
-import { PaginationUtil } from '../../common/utils/pagination.util';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 import { CACHE_TTL } from '../../common/constants/system.constant';
 
 @Injectable()
 export class BlogService extends BaseService<Post> {
+  protected searchableFields = ['title', 'slug'];
+
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
@@ -31,6 +36,12 @@ export class BlogService extends BaseService<Post> {
     super(postRepository);
   }
 
+  protected getQueryBuilder(alias: string = 'post'): SelectQueryBuilder<Post> {
+    return this.postRepository
+      .createQueryBuilder(alias)
+      .leftJoinAndSelect(`${alias}.category`, 'category');
+  }
+
   private async clearCache() {
     await this.cacheService.delByPattern('blog:*');
   }
@@ -39,33 +50,19 @@ export class BlogService extends BaseService<Post> {
 
   async findAllPosts(query: PostQueryDto) {
     const cacheKey = `blog:list:${JSON.stringify(query)}`;
-    const cached = await this.cacheService.get<{ items: Post[]; total: number }>(cacheKey);
+    const cached = await this.cacheService.get<{ items: Post[]; total: number }>(
+      cacheKey,
+    );
     if (cached) return cached;
 
-    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
-    const where: any = {};
+    const { categoryId, isPublished } = query;
 
-    if (query.categoryId) {
-      where.categoryId = query.categoryId;
-    }
-
-    if (query.isPublished !== undefined) {
-      where.isPublished = query.isPublished;
-    }
-
-    if (query.search) {
-      where.title = ILike(`%${query.search}%`);
-    }
-
-    const [items, total] = await this.postRepository.findAndCount({
-      where,
-      relations: ['category'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take,
+    const result = await this.findPaginated(query, 'post', (qb) => {
+      if (categoryId) qb.andWhere('post.categoryId = :categoryId', { categoryId });
+      if (isPublished !== undefined)
+        qb.andWhere('post.isPublished = :isPublished', { isPublished });
     });
 
-    const result = { items, total };
     await this.cacheService.set(cacheKey, result, CACHE_TTL.ONE_HOUR);
     return result;
   }

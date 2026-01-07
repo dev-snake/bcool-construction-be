@@ -4,9 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
-import { PaginationUtil } from '../../common/utils/pagination.util';
 import { User } from './entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { CryptoUtil } from '../../common/utils/crypto.util';
@@ -18,6 +17,8 @@ import {
 
 @Injectable()
 export class UsersService extends BaseService<User> {
+  protected searchableFields = ['email', 'fullName'];
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -27,13 +28,17 @@ export class UsersService extends BaseService<User> {
     super(userRepository);
   }
 
+  protected getQueryBuilder(alias: string = 'user'): SelectQueryBuilder<User> {
+    return this.userRepository
+      .createQueryBuilder(alias)
+      .leftJoinAndSelect(`${alias}.roles`, 'roles');
+  }
+
   async findByEmail(
     email: string,
     includePassword = false,
   ): Promise<User | null> {
-    const queryBuilder = this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.roles', 'roles')
+    const queryBuilder = this.getQueryBuilder('user')
       .leftJoinAndSelect('roles.permissions', 'permissions')
       .leftJoinAndSelect('permissions.module', 'module')
       .where('user.email = :email', { email });
@@ -55,41 +60,28 @@ export class UsersService extends BaseService<User> {
   }
 
   async findUsersPaginated(query: UserQueryDto) {
-    const { search, roleId, isActive } = query;
-    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
+    const { roleId, isActive } = query;
 
-    const qb = this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.roles', 'roles');
-
-    if (search) {
-      qb.andWhere(
-        '(user.email LIKE :search OR user.fullName LIKE :search)',
-        { search: `%${search}%` },
-      );
-    }
-
-    if (roleId) {
-      qb.andWhere('roles.id = :roleId', { roleId });
-    }
-
-    if (isActive !== undefined) {
-      qb.andWhere('user.isActive = :isActive', { isActive });
-    }
-
-    qb.orderBy('user.createdAt', 'DESC')
-      .take(take)
-      .skip(skip);
-
-    const [items, total] = await qb.getManyAndCount();
+    const { items, total } = await this.findPaginated(
+      query,
+      'user',
+      (qb) => {
+        if (roleId) {
+          qb.andWhere('roles.id = :roleId', { roleId });
+        }
+        if (isActive !== undefined) {
+          qb.andWhere('user.isActive = :isActive', { isActive });
+        }
+      },
+    );
 
     return {
       items,
       meta: {
         total,
         page: query.page || 1,
-        limit: take,
-        totalPages: Math.ceil(total / take),
+        limit: query.limit || 10,
+        totalPages: Math.ceil(total / (query.limit || 10)),
       },
     };
   }

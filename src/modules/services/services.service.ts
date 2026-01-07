@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, ILike } from 'typeorm';
+import { Repository, IsNull, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Service } from './entities/service.entity';
 import { ServiceContent } from './entities/service-content.entity';
@@ -17,11 +17,12 @@ import {
   CreateServiceContentDto,
   CreateServiceMediaDto,
 } from './dto/service.dto';
-import { PaginationUtil } from '../../common/utils/pagination.util';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 @Injectable()
 export class ServicesService extends BaseService<Service> {
+  protected searchableFields = ['title', 'slug'];
+
   constructor(
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
@@ -32,6 +33,13 @@ export class ServicesService extends BaseService<Service> {
     private readonly cacheService: RedisCacheService,
   ) {
     super(serviceRepository);
+  }
+
+  protected getQueryBuilder(alias: string = 'service'): SelectQueryBuilder<Service> {
+    return this.serviceRepository
+      .createQueryBuilder(alias)
+      .leftJoinAndSelect(`${alias}.children`, 'children')
+      .leftJoinAndSelect('children.children', 'grandChildren');
   }
 
   private async clearCache() {
@@ -45,26 +53,20 @@ export class ServicesService extends BaseService<Service> {
     const cached = await this.cacheService.get<{ items: Service[]; total: number }>(cacheKey);
     if (cached) return cached;
 
-    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
-    const where: any = { parentId: IsNull() };
+    const { isActive } = query;
 
-    if (query.isActive !== undefined) {
-      where.isActive = query.isActive;
-    }
-
-    if (query.search) {
-      where.title = ILike(`%${query.search}%`);
-    }
-
-    const [items, total] = await this.serviceRepository.findAndCount({
-      where,
-      relations: ['children', 'children.children'],
-      order: { sortOrder: 'ASC' },
-      skip,
-      take,
+    const result = await this.findPaginated(query, 'service', (qb) => {
+      qb.andWhere('service.parentId IS NULL');
+      if (isActive !== undefined) {
+        qb.andWhere('service.isActive = :isActive', { isActive });
+      }
     });
 
-    const result = { items, total };
+    // Default sort for hierarchical services
+    if (!query.sortBy) {
+        result.items.sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
     await this.cacheService.set(cacheKey, result, 3600);
     return result;
   }

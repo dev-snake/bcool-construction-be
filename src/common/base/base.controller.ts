@@ -25,15 +25,7 @@ export abstract class BaseController<T extends BaseEntity> {
   async findAll(
     @Query() query: BaseQueryDto,
   ): Promise<{ items: T[]; total: number }> {
-    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
-    const [items, total] = await this.service.findPaginated({
-      skip,
-      take,
-      order: query.sortBy
-        ? ({ [query.sortBy]: query.order } as any)
-        : ({ createdAt: 'DESC' } as any),
-    });
-    return { items, total };
+    return await this.service.findPaginated(query);
   }
 
   @Get(':id')

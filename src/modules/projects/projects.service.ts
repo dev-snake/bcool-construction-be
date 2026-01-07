@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, In, ILike } from 'typeorm';
+import { Repository, In, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
 import { Project } from './entities/project.entity';
 import { ProjectContent } from './entities/project-content.entity';
@@ -23,12 +23,13 @@ import {
   CreateProjectStatusDto,
   UpdateProjectStatusDto,
 } from './dto/project-status.dto';
-import { PaginationUtil } from '../../common/utils/pagination.util';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 import { CACHE_TTL } from '../../common/constants/system.constant';
 
 @Injectable()
 export class ProjectsService extends BaseService<Project> {
+  protected searchableFields = ['title', 'slug'];
+
   constructor(
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
@@ -45,6 +46,16 @@ export class ProjectsService extends BaseService<Project> {
     private readonly cacheService: RedisCacheService,
   ) {
     super(projectRepository);
+  }
+
+  protected getQueryBuilder(
+    alias: string = 'project',
+  ): SelectQueryBuilder<Project> {
+    return this.projectRepository
+      .createQueryBuilder(alias)
+      .leftJoinAndSelect(`${alias}.projectType`, 'projectType')
+      .leftJoinAndSelect(`${alias}.status`, 'status')
+      .leftJoinAndSelect(`${alias}.media`, 'media');
   }
 
   private async clearCache() {
@@ -172,30 +183,23 @@ export class ProjectsService extends BaseService<Project> {
 
   async findAllProjects(query: ProjectQueryDto) {
     const cacheKey = `projects:list:${JSON.stringify(query)}`;
-    const cached = await this.cacheService.get<{ items: Project[]; total: number }>(cacheKey);
+    const cached = await this.cacheService.get<{ items: Project[]; total: number }>(
+      cacheKey,
+    );
     if (cached) return cached;
 
-    const { skip, take } = PaginationUtil.getSkipTake(query.page, query.limit);
-    const where: any = {};
+    const { typeId, statusId, featured, published } = query;
 
-    if (query.typeId) where.projectTypeId = query.typeId;
-    if (query.statusId) where.statusId = query.statusId;
-    if (query.featured !== undefined) where.isFeatured = query.featured;
-    if (query.published !== undefined) where.isPublished = query.published;
-    if (query.search) {
-      where.title = ILike(`%${query.search}%`);
-    }
-
-    const [items, total] = await this.projectRepository.findAndCount({
-      where,
-      relations: ['projectType', 'status', 'media'],
-      take,
-      skip,
-      order: { [query.sortBy || 'createdAt']: query.order || 'DESC' },
+    const result = await this.findPaginated(query, 'project', (qb) => {
+      if (typeId) qb.andWhere('project.projectTypeId = :typeId', { typeId });
+      if (statusId) qb.andWhere('project.statusId = :statusId', { statusId });
+      if (featured !== undefined)
+        qb.andWhere('project.isFeatured = :featured', { featured });
+      if (published !== undefined)
+        qb.andWhere('project.isPublished = :published', { published });
     });
 
-    const result = { items, total };
-    await this.cacheService.set(cacheKey, result, CACHE_TTL.ONE_HOUR); // 1 hour
+    await this.cacheService.set(cacheKey, result, CACHE_TTL.ONE_HOUR);
     return result;
   }
 

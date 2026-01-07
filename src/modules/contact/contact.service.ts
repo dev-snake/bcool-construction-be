@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../../common/base/base.service';
-import { PaginationUtil } from '../../common/utils/pagination.util';
 import { Contact } from './entities/contact.entity';
 import { ContactType } from './entities/contact-type.entity';
 import { ContactStatus } from './entities/contact-status.entity';
@@ -27,6 +26,8 @@ import { JobName } from '../../common/enums/job.enum';
 
 @Injectable()
 export class ContactService extends BaseService<Contact> {
+  protected searchableFields = ['fullName', 'email', 'phone'];
+
   constructor(
     @InjectRepository(Contact)
     private readonly contactRepository: Repository<Contact>,
@@ -38,6 +39,15 @@ export class ContactService extends BaseService<Contact> {
     private readonly contactQueue: Queue,
   ) {
     super(contactRepository);
+  }
+
+  protected getQueryBuilder(
+    alias: string = 'contact',
+  ): SelectQueryBuilder<Contact> {
+    return this.contactRepository
+      .createQueryBuilder(alias)
+      .leftJoinAndSelect(`${alias}.type`, 'type')
+      .leftJoinAndSelect(`${alias}.status`, 'status');
   }
 
   // PUBLIC
@@ -68,52 +78,33 @@ export class ContactService extends BaseService<Contact> {
 
   // ADMIN - MANAGE SUBMISSIONS
   async findPaginatedSubmissions(query: ContactQueryDto) {
-    const { 
-      page = 1, 
-      limit = 10, 
-      typeId, 
-      statusId, 
-      email, 
-      fullName, 
-      search,
-      startDate,
-      endDate
-    } = query;
-    
-    const qb = this.contactRepository.createQueryBuilder('contact')
-      .leftJoinAndSelect('contact.type', 'type')
-      .leftJoinAndSelect('contact.status', 'status');
+    const { typeId, statusId, email, fullName, startDate, endDate } = query;
 
-    if (typeId) qb.andWhere('contact.typeId = :typeId', { typeId });
-    if (statusId) qb.andWhere('contact.statusId = :statusId', { statusId });
-    if (email) qb.andWhere('contact.email LIKE :email', { email: `%${email}%` });
-    if (fullName) qb.andWhere('contact.fullName LIKE :fullName', { fullName: `%${fullName}%` });
-    if (search) {
-      qb.andWhere('(contact.email LIKE :search OR contact.fullName LIKE :search OR contact.phone LIKE :search)', { search: `%${search}%` });
-    }
+    const { items, total } = await this.findPaginated(query, 'contact', (qb) => {
+      if (typeId) qb.andWhere('contact.typeId = :typeId', { typeId });
+      if (statusId) qb.andWhere('contact.statusId = :statusId', { statusId });
+      if (email)
+        qb.andWhere('contact.email ILIKE :email', { email: `%${email}%` });
+      if (fullName)
+        qb.andWhere('contact.fullName ILIKE :fullName', {
+          fullName: `%${fullName}%`,
+        });
 
-    if (startDate) {
-      qb.andWhere('contact.createdAt >= :startDate', { startDate });
-    }
-    if (endDate) {
-      qb.andWhere('contact.createdAt <= :endDate', { endDate });
-    }
-
-    const { skip, take } = PaginationUtil.getSkipTake(page, limit);
-
-    qb.orderBy('contact.createdAt', 'DESC')
-      .take(take)
-      .skip(skip);
-
-    const [items, total] = await qb.getManyAndCount();
+      if (startDate) {
+        qb.andWhere('contact.createdAt >= :startDate', { startDate });
+      }
+      if (endDate) {
+        qb.andWhere('contact.createdAt <= :endDate', { endDate });
+      }
+    });
 
     return {
       items,
       meta: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        page: query.page || 1,
+        limit: query.limit || 10,
+        totalPages: Math.ceil(total / (query.limit || 10)),
       },
     };
   }
