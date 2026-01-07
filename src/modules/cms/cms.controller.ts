@@ -270,6 +270,18 @@ export class CmsController {
   @UseGuards(JwtAuthGuard)
   @CheckPermission({
     module: SystemModule.CMS,
+    action: PermissionAction.VIEW,
+  })
+  @Get('branches/:id')
+  @ApiOperation({ summary: 'Admin: Get branch detail' })
+  getBranch(@Param('id') id: string) {
+    return this.cmsService.findBranchById(id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({
+    module: SystemModule.CMS,
     action: PermissionAction.CREATE,
   })
   @Post('branches')

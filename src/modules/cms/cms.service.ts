@@ -191,6 +191,12 @@ export class CmsService extends BaseService<Page> {
     });
   }
 
+  async findBranchById(id: string) {
+    const branch = await this.branchRepository.findOne({ where: { id } as any });
+    if (!branch) throw new NotFoundException('Branch not found');
+    return branch;
+  }
+
   async createBranch(dto: CreateBranchDto) {
     const branch = this.branchRepository.create(dto);
     return this.branchRepository.save(branch);
