@@ -45,7 +45,6 @@ services:
     container_name: bcool-redis-prod
     command: >
       redis-server
-      --requirepass ${REDIS_PASSWORD}
       --appendonly yes
       --maxmemory 512mb
       --maxmemory-policy allkeys-lru
@@ -55,7 +54,7 @@ services:
       - backend-net
     restart: always
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
