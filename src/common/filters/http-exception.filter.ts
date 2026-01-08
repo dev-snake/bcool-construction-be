@@ -28,7 +28,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         : exceptionResponse;
 
     const code =
-      typeof exceptionResponse === 'object' && exceptionResponse['error']
+      typeof exceptionResponse === 'object' && typeof exceptionResponse['error'] === 'string'
         ? exceptionResponse['error'].toUpperCase().replace(/\s+/g, '_')
         : 'INTERNAL_SERVER_ERROR';
 
