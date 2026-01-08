@@ -10,11 +10,12 @@ const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'bcool_construction',
 
-  // Đường dẫn entities (cần .ts cho CLI)
-  entities: ['src/**/*.entity.ts'],
+  // Đường dẫn entities (hỗ trợ cả .ts cho dev và .js cho build)
+  entities: [__dirname + '/**/*.entity{.ts,.js}'],
 
   // Thư mục chứa migrations
-  migrations: ['src/migrations/*.ts'],
+  // Thư mục chứa migrations
+  migrations: [__dirname + '/migrations/*{.ts,.js}'],
 
   // QUAN TRỌNG: Tắt synchronize khi dùng migrations
   synchronize: false,
