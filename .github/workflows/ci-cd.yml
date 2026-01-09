@@ -165,6 +165,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.STAGING_APP_PATH }}
+            git pull origin ${{ github.ref_name }}
 
             # Create/Update .env.production from secrets
             cat <<EOF > .env.production
@@ -211,6 +212,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.STAGING_APP_PATH }}
+            git pull origin ${{ github.ref_name }}
 
             # Create/Update .env.production from secrets
             cat <<EOF > .env.production
