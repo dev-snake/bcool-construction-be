@@ -1,5 +1,6 @@
 services:
   api:
+    image: ghcr.io/dev-snake/bcool-construction-be:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile.prod
