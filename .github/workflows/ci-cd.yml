@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master,main]
+    branches: [master, main]
   pull_request:
-    branches: [master,main]
+    branches: [master, main]
 
 env:
   NODE_VERSION: '22'
@@ -206,11 +206,11 @@ jobs:
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{ secrets.PRODUCTION_APP_PATH }}
+            cd ${{ secrets.STAGING_APP_PATH }}
 
             # Create/Update .env.production from secrets
             cat <<EOF > .env.production
