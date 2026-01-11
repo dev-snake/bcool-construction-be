@@ -6,17 +6,16 @@ FROM node:22-alpine AS builder
 WORKDIR /usr/src/app
 
 # Copy package files
-COPY package*.json ./
-COPY yarn.lock ./
+COPY package.json yarn.lock ./
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm install
+RUN yarn install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
 # Build application
-RUN npm run build
+RUN yarn build
 
 # Stage 2: Production
 FROM node:22-alpine AS production
@@ -24,15 +23,20 @@ FROM node:22-alpine AS production
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
+# Build metadata
+ARG GIT_COMMIT
+ARG BUILD_DATE
+ENV GIT_COMMIT=${GIT_COMMIT}
+ENV BUILD_DATE=${BUILD_DATE}
+
 WORKDIR /usr/src/app
 
 # Copy package files
-COPY package*.json ./
-COPY yarn.lock ./
+COPY package.json yarn.lock ./
 
 # Install only production dependencies
-RUN npm install --only=production && \
-    npm cache clean --force
+RUN yarn install --production --frozen-lockfile && \
+    yarn cache clean
 
 # Copy built application from builder stage
 COPY --from=builder /usr/src/app/dist ./dist

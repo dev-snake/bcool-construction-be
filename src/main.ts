@@ -73,5 +73,11 @@ async function bootstrap() {
   console.log(
     `📚 Swagger documentation: http://localhost:${port}/${apiPrefix}/docs`,
   );
+  if (process.env.GIT_COMMIT) {
+    console.log(`📌 Build Commit: ${process.env.GIT_COMMIT}`);
+  }
+  if (process.env.BUILD_DATE) {
+    console.log(`📅 Build Date: ${process.env.BUILD_DATE}`);
+  }
 }
 void bootstrap();

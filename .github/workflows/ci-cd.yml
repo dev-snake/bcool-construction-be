@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master]
+    branches: [production]
   pull_request:
-    branches: [master]
+    branches: [production]
 
 env:
   NODE_VERSION: '22'
@@ -106,7 +106,7 @@ jobs:
     name: Docker Build & Push
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/dev'
+    if: github.event_name == 'push' && github.ref_name == 'production'
 
     permissions:
       contents: read
@@ -115,6 +115,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -134,7 +138,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,prefix=
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'production' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -145,6 +149,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            BUILD_DATE=${{ steps.date.outputs.date }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -153,7 +160,7 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: docker
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master'
+    if: false # Disabled - only production deployment is active
     environment: staging
 
     steps:
@@ -164,7 +171,9 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
             cd ${{ secrets.STAGING_APP_PATH }}
+            git pull origin ${{ github.ref_name }}
 
             # Create/Update .env.production from secrets
             cat <<EOF > .env.production
@@ -191,7 +200,7 @@ jobs:
             EOF
 
             docker compose -f docker/docker-compose.prod.yml pull
-            docker compose -f docker/docker-compose.prod.yml up -d
+            docker compose -f docker/docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
             echo "✅ Staging deployment completed!"
 
@@ -199,18 +208,20 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: docker
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref_name == 'production'
     environment: production
 
     steps:
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{ secrets.PRODUCTION_APP_PATH }}
+            set -e
+            cd ${{ secrets.PROD_APP_PATH }}
+            git pull origin ${{ github.ref_name }}
 
             # Create/Update .env.production from secrets
             cat <<EOF > .env.production
@@ -223,7 +234,6 @@ jobs:
             DB_DATABASE=${{ secrets.DB_DATABASE }}
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             REDIS_PORT=${{ secrets.REDIS_PORT }}
-            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -237,6 +247,6 @@ jobs:
             EOF
 
             docker compose -f docker/docker-compose.prod.yml pull
-            docker compose -f docker/docker-compose.prod.yml up -d
+            docker compose -f docker/docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
             echo "✅ Production deployment completed!"

@@ -1,0 +1,124 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class InitialSchema1767960669568 implements MigrationInterface {
+    name = 'InitialSchema1767960669568'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE TABLE "service_contents" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "service_id" uuid NOT NULL, "content" text NOT NULL, CONSTRAINT "PK_2785c1ffd5b9945898cd0493be0" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "project_types" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "code" character varying(50) NOT NULL, "name" character varying(100) NOT NULL, CONSTRAINT "UQ_5f493a96643ff6f928bf5e94315" UNIQUE ("code"), CONSTRAINT "PK_a92511c5000b6b331876bbbce08" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "project_statuses" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "code" character varying(50) NOT NULL, "name" character varying(100) NOT NULL, CONSTRAINT "UQ_5d0a621d904d0d201b6ead0ce87" UNIQUE ("code"), CONSTRAINT "PK_b0ca0748cbeddc71d6bf76c2fa7" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "project_contents" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "project_id" uuid NOT NULL, "content" text NOT NULL, CONSTRAINT "PK_729a4963e8295d80d103011d7b0" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "project_media" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "project_id" uuid NOT NULL, "media_url" text NOT NULL, "caption" character varying(255), "sort_order" integer NOT NULL DEFAULT '0', CONSTRAINT "PK_b09c16ca275c8dc8b7c345b9890" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "projects" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "slug" character varying(150) NOT NULL, "title" character varying(255) NOT NULL, "short_description" text, "location" character varying(255), "investor" character varying(255), "scale" character varying(255), "project_type_id" uuid, "status_id" uuid, "started_at" date, "completed_at" date, "is_featured" boolean NOT NULL DEFAULT false, "is_published" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_96e045ab8b0271e5f5a91eae1ee" UNIQUE ("slug"), CONSTRAINT "PK_6271df0a7aed1d6c0691ce6ac50" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "services" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "parent_id" uuid, "slug" character varying(150) NOT NULL, "title" character varying(255) NOT NULL, "short_description" text, "icon_url" text, "image_url" text, "sort_order" integer NOT NULL DEFAULT '0', "is_active" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_02cf0d0f46e11d22d952f623670" UNIQUE ("slug"), CONSTRAINT "PK_ba2d347a3168a296416c6c5ccb2" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE INDEX "idx_services_parent" ON "services" ("parent_id") `);
+        await queryRunner.query(`CREATE TABLE "service_media" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "service_id" uuid NOT NULL, "media_url" text NOT NULL, "sort_order" integer NOT NULL DEFAULT '0', CONSTRAINT "PK_54a92173a679438fb469548a923" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "modules" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "code" character varying NOT NULL, "name" character varying NOT NULL, CONSTRAINT "UQ_25b42b11ac8b697cdb2eddcef1a" UNIQUE ("code"), CONSTRAINT "PK_7dbefd488bd96c5bf31f0ce0c95" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "module_id" uuid NOT NULL, "can_view" boolean NOT NULL DEFAULT false, "can_create" boolean NOT NULL DEFAULT false, "can_update" boolean NOT NULL DEFAULT false, "can_delete" boolean NOT NULL DEFAULT false, CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "roles" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" text, CONSTRAINT "UQ_f6d54f95c31b73fb1bdd8e91d0c" UNIQUE ("code"), CONSTRAINT "PK_c1433d71a4838793a49dcad46ab" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "media_files" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "file_name" character varying(255), "file_url" text NOT NULL, "file_type" character varying(50), "uploaded_by" uuid, CONSTRAINT "PK_93b4da6741cd150e76f9ac035d8" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "login_logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid, "ip_address" inet, CONSTRAINT "PK_15f7b02ad55d5ba905b2962ebab" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "activity_logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid, "module" character varying(100), "action" character varying(50), "record_id" character varying, "ip_address" inet, CONSTRAINT "PK_f25287b6140c5ba18d38776a796" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "email" character varying NOT NULL, "password_hash" character varying NOT NULL, "full_name" character varying, "phone" character varying, "is_active" boolean NOT NULL DEFAULT true, "is_locked" boolean NOT NULL DEFAULT false, CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "contact_types" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "code" character varying(50) NOT NULL, "name" character varying(100) NOT NULL, CONSTRAINT "UQ_8bbba96b94d68161f8febff94ea" UNIQUE ("code"), CONSTRAINT "PK_cfbbcaf06c9ffa278519a0ff810" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "contact_statuses" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "name" character varying(100) NOT NULL, CONSTRAINT "PK_d1d0715f36992c64d88cf1ec82a" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "contacts" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "full_name" character varying(255), "phone" character varying(50), "email" character varying(255), "message" text, "admin_note" text, "type_id" uuid, "status_id" uuid, CONSTRAINT "PK_b99cd40cfd66a99f1571f4f72e6" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "page_sections" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "page_id" uuid NOT NULL, "title" character varying(255), "content" text, "type" character varying(50) NOT NULL DEFAULT 'RICHTEXT', "metadata" json, "sort_order" integer NOT NULL DEFAULT '0', "is_visible" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_febb265da4ebfa7cf6bb0e732b4" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "pages" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "slug" character varying(100) NOT NULL, "title" character varying(255) NOT NULL, "is_published" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_fe66ca6a86dc94233e5d7789535" UNIQUE ("slug"), CONSTRAINT "PK_8f21ed625aa34c8391d636b7d3b" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "counters" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "label" character varying(255) NOT NULL, "value" integer NOT NULL, "sort_order" integer NOT NULL DEFAULT '0', "is_active" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_910bfcbadea9cde6397e0daf996" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "branches" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "name" character varying(255) NOT NULL, "address" character varying(500) NOT NULL, "phone" character varying(50), "email" character varying(100), "working_hours" character varying(255), "latitude" numeric(10,7), "longitude" numeric(10,7), "is_main_branch" boolean NOT NULL DEFAULT false, "sort_order" integer NOT NULL DEFAULT '0', "is_visible" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_7f37d3b42defea97f1df0d19535" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "banners" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "title" character varying(255), "subtitle" character varying(255), "description" text, "image_url" text NOT NULL, "link_url" text, "sort_order" integer NOT NULL DEFAULT '0', "is_active" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_e9b186b959296fcb940790d31c3" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "post_categories" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "name" character varying(255) NOT NULL, "slug" character varying(150) NOT NULL, CONSTRAINT "UQ_5e0badd4b72dd5fd52242a4e849" UNIQUE ("slug"), CONSTRAINT "PK_9c45c4e9fb6ebf296990e1d3972" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "posts" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "category_id" uuid, "title" character varying(255) NOT NULL, "slug" character varying(150) NOT NULL, "content" text, "thumbnail_url" text, "is_published" boolean NOT NULL DEFAULT false, "publish_at" TIMESTAMP WITH TIME ZONE, "allow_comment" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_54ddf9075260407dcfdd7248577" UNIQUE ("slug"), CONSTRAINT "PK_2829ac61eff60fcec60d7274b9e" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "project_services" ("project_id" uuid NOT NULL, "service_id" uuid NOT NULL, CONSTRAINT "PK_e7eaef0bb0960538ee83f00c6ae" PRIMARY KEY ("project_id", "service_id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_ed6d4efd05c4874e848ea93b60" ON "project_services" ("project_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_c8c7f6ad9c09772cfa926da2d7" ON "project_services" ("service_id") `);
+        await queryRunner.query(`CREATE TABLE "role_permissions" ("role_id" uuid NOT NULL, "permission_id" uuid NOT NULL, CONSTRAINT "PK_25d24010f53bb80b78e412c9656" PRIMARY KEY ("role_id", "permission_id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_178199805b901ccd220ab7740e" ON "role_permissions" ("role_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_17022daf3f885f7d35423e9971" ON "role_permissions" ("permission_id") `);
+        await queryRunner.query(`CREATE TABLE "user_roles" ("user_id" uuid NOT NULL, "role_id" uuid NOT NULL, CONSTRAINT "PK_23ed6f04fe43066df08379fd034" PRIMARY KEY ("user_id", "role_id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_87b8888186ca9769c960e92687" ON "user_roles" ("user_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_b23c65e50a758245a33ee35fda" ON "user_roles" ("role_id") `);
+        await queryRunner.query(`ALTER TABLE "service_contents" ADD CONSTRAINT "FK_e3d561e9730cc3a5201da4175db" FOREIGN KEY ("service_id") REFERENCES "services"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "project_contents" ADD CONSTRAINT "FK_17945a57907b5c360b84363d849" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "project_media" ADD CONSTRAINT "FK_47b1c749ffaec9c37b649e1fa8d" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "projects" ADD CONSTRAINT "FK_e8cea670941d4e9fa835394314b" FOREIGN KEY ("project_type_id") REFERENCES "project_types"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "projects" ADD CONSTRAINT "FK_a8c4b6b8e9e5cd88ff341faab31" FOREIGN KEY ("status_id") REFERENCES "project_statuses"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "services" ADD CONSTRAINT "FK_c179ed127a2a08e4a748edb7403" FOREIGN KEY ("parent_id") REFERENCES "services"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "service_media" ADD CONSTRAINT "FK_1fcadd96010cca00bc08f7eccbf" FOREIGN KEY ("service_id") REFERENCES "services"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "permissions" ADD CONSTRAINT "FK_738f46bb9ac6ea356f1915835d0" FOREIGN KEY ("module_id") REFERENCES "modules"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "media_files" ADD CONSTRAINT "FK_78f2e01705ad1a9b77ef3ee3777" FOREIGN KEY ("uploaded_by") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "login_logs" ADD CONSTRAINT "FK_e2dffa109d0d3dbd94a0a51669c" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "activity_logs" ADD CONSTRAINT "FK_d54f841fa5478e4734590d44036" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "contacts" ADD CONSTRAINT "FK_422b034edc34965c2908e7bf533" FOREIGN KEY ("type_id") REFERENCES "contact_types"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "contacts" ADD CONSTRAINT "FK_540f03b1ff3d0602e445d7748de" FOREIGN KEY ("status_id") REFERENCES "contact_statuses"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "page_sections" ADD CONSTRAINT "FK_fd4e1044ed2cd7886b8b57954c1" FOREIGN KEY ("page_id") REFERENCES "pages"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "posts" ADD CONSTRAINT "FK_852f266adc5d67c40405c887b49" FOREIGN KEY ("category_id") REFERENCES "post_categories"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "project_services" ADD CONSTRAINT "FK_ed6d4efd05c4874e848ea93b603" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE "project_services" ADD CONSTRAINT "FK_c8c7f6ad9c09772cfa926da2d78" FOREIGN KEY ("service_id") REFERENCES "services"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "role_permissions" ADD CONSTRAINT "FK_178199805b901ccd220ab7740ec" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE "role_permissions" ADD CONSTRAINT "FK_17022daf3f885f7d35423e9971e" FOREIGN KEY ("permission_id") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE "user_roles" ADD CONSTRAINT "FK_87b8888186ca9769c960e926870" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE "user_roles" ADD CONSTRAINT "FK_b23c65e50a758245a33ee35fda1" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "user_roles" DROP CONSTRAINT "FK_b23c65e50a758245a33ee35fda1"`);
+        await queryRunner.query(`ALTER TABLE "user_roles" DROP CONSTRAINT "FK_87b8888186ca9769c960e926870"`);
+        await queryRunner.query(`ALTER TABLE "role_permissions" DROP CONSTRAINT "FK_17022daf3f885f7d35423e9971e"`);
+        await queryRunner.query(`ALTER TABLE "role_permissions" DROP CONSTRAINT "FK_178199805b901ccd220ab7740ec"`);
+        await queryRunner.query(`ALTER TABLE "project_services" DROP CONSTRAINT "FK_c8c7f6ad9c09772cfa926da2d78"`);
+        await queryRunner.query(`ALTER TABLE "project_services" DROP CONSTRAINT "FK_ed6d4efd05c4874e848ea93b603"`);
+        await queryRunner.query(`ALTER TABLE "posts" DROP CONSTRAINT "FK_852f266adc5d67c40405c887b49"`);
+        await queryRunner.query(`ALTER TABLE "page_sections" DROP CONSTRAINT "FK_fd4e1044ed2cd7886b8b57954c1"`);
+        await queryRunner.query(`ALTER TABLE "contacts" DROP CONSTRAINT "FK_540f03b1ff3d0602e445d7748de"`);
+        await queryRunner.query(`ALTER TABLE "contacts" DROP CONSTRAINT "FK_422b034edc34965c2908e7bf533"`);
+        await queryRunner.query(`ALTER TABLE "activity_logs" DROP CONSTRAINT "FK_d54f841fa5478e4734590d44036"`);
+        await queryRunner.query(`ALTER TABLE "login_logs" DROP CONSTRAINT "FK_e2dffa109d0d3dbd94a0a51669c"`);
+        await queryRunner.query(`ALTER TABLE "media_files" DROP CONSTRAINT "FK_78f2e01705ad1a9b77ef3ee3777"`);
+        await queryRunner.query(`ALTER TABLE "permissions" DROP CONSTRAINT "FK_738f46bb9ac6ea356f1915835d0"`);
+        await queryRunner.query(`ALTER TABLE "service_media" DROP CONSTRAINT "FK_1fcadd96010cca00bc08f7eccbf"`);
+        await queryRunner.query(`ALTER TABLE "services" DROP CONSTRAINT "FK_c179ed127a2a08e4a748edb7403"`);
+        await queryRunner.query(`ALTER TABLE "projects" DROP CONSTRAINT "FK_a8c4b6b8e9e5cd88ff341faab31"`);
+        await queryRunner.query(`ALTER TABLE "projects" DROP CONSTRAINT "FK_e8cea670941d4e9fa835394314b"`);
+        await queryRunner.query(`ALTER TABLE "project_media" DROP CONSTRAINT "FK_47b1c749ffaec9c37b649e1fa8d"`);
+        await queryRunner.query(`ALTER TABLE "project_contents" DROP CONSTRAINT "FK_17945a57907b5c360b84363d849"`);
+        await queryRunner.query(`ALTER TABLE "service_contents" DROP CONSTRAINT "FK_e3d561e9730cc3a5201da4175db"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_b23c65e50a758245a33ee35fda"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_87b8888186ca9769c960e92687"`);
+        await queryRunner.query(`DROP TABLE "user_roles"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_17022daf3f885f7d35423e9971"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_178199805b901ccd220ab7740e"`);
+        await queryRunner.query(`DROP TABLE "role_permissions"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_c8c7f6ad9c09772cfa926da2d7"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_ed6d4efd05c4874e848ea93b60"`);
+        await queryRunner.query(`DROP TABLE "project_services"`);
+        await queryRunner.query(`DROP TABLE "posts"`);
+        await queryRunner.query(`DROP TABLE "post_categories"`);
+        await queryRunner.query(`DROP TABLE "banners"`);
+        await queryRunner.query(`DROP TABLE "branches"`);
+        await queryRunner.query(`DROP TABLE "counters"`);
+        await queryRunner.query(`DROP TABLE "pages"`);
+        await queryRunner.query(`DROP TABLE "page_sections"`);
+        await queryRunner.query(`DROP TABLE "contacts"`);
+        await queryRunner.query(`DROP TABLE "contact_statuses"`);
+        await queryRunner.query(`DROP TABLE "contact_types"`);
+        await queryRunner.query(`DROP TABLE "users"`);
+        await queryRunner.query(`DROP TABLE "activity_logs"`);
+        await queryRunner.query(`DROP TABLE "login_logs"`);
+        await queryRunner.query(`DROP TABLE "media_files"`);
+        await queryRunner.query(`DROP TABLE "roles"`);
+        await queryRunner.query(`DROP TABLE "permissions"`);
+        await queryRunner.query(`DROP TABLE "modules"`);
+        await queryRunner.query(`DROP TABLE "service_media"`);
+        await queryRunner.query(`DROP INDEX "public"."idx_services_parent"`);
+        await queryRunner.query(`DROP TABLE "services"`);
+        await queryRunner.query(`DROP TABLE "projects"`);
+        await queryRunner.query(`DROP TABLE "project_media"`);
+        await queryRunner.query(`DROP TABLE "project_contents"`);
+        await queryRunner.query(`DROP TABLE "project_statuses"`);
+        await queryRunner.query(`DROP TABLE "project_types"`);
+        await queryRunner.query(`DROP TABLE "service_contents"`);
+    }
+
+}

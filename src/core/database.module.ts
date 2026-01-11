@@ -10,7 +10,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         ...(config.get('database') as Record<string, any>),
         autoLoadEntities: true,
         migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-        migrationsRun: true,
       }),
     }),
   ],
