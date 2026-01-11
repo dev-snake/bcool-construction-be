@@ -246,7 +246,10 @@ jobs:
             MAIL_FROM=${{ secrets.MAIL_FROM }}
             EOF
 
-            docker compose -f docker/docker-compose.prod.yml pull
-            docker compose -f docker/docker-compose.prod.yml up -d --force-recreate
+            # Login to GitHub Container Registry
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+            docker compose --env-file .env.production -f docker/docker-compose.prod.yml pull
+            docker compose --env-file .env.production -f docker/docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
             echo "✅ Production deployment completed!"
