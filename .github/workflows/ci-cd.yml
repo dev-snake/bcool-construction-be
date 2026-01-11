@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master, main]
+    branches: [production]
   pull_request:
-    branches: [master, main]
+    branches: [production]
 
 env:
   NODE_VERSION: '22'
@@ -106,7 +106,7 @@ jobs:
     name: Docker Build & Push
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && contains(fromJSON('["main", "master", "develop", "dev"]'), github.ref_name) || github.event_name == 'pull_request'
+    if: github.event_name == 'push' && github.ref_name == 'production'
 
     permissions:
       contents: read
@@ -138,7 +138,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,prefix=
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'production' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -160,7 +160,7 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: docker
-    if: github.event_name == 'push' && contains(fromJSON('["main", "master", "develop", "dev"]'), github.ref_name)
+    if: false # Disabled - only production deployment is active
     environment: staging
 
     steps:
@@ -208,19 +208,19 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: docker
-    if: github.event_name == 'push' && contains(fromJSON('["main", "master"]'), github.ref_name)
+    if: github.event_name == 'push' && github.ref_name == 'production'
     environment: production
 
     steps:
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
-            cd ${{ secrets.STAGING_APP_PATH }}
+            cd ${{ secrets.PROD_APP_PATH }}
             git pull origin ${{ github.ref_name }}
 
             # Create/Update .env.production from secrets
@@ -234,7 +234,6 @@ jobs:
             DB_DATABASE=${{ secrets.DB_DATABASE }}
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             REDIS_PORT=${{ secrets.REDIS_PORT }}
-            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
