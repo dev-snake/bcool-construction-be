@@ -171,6 +171,7 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
             cd ${{ secrets.STAGING_APP_PATH }}
             git pull origin ${{ github.ref_name }}
 
@@ -199,8 +200,7 @@ jobs:
             EOF
 
             docker compose -f docker/docker-compose.prod.yml pull
-            docker compose -f docker/docker-compose.prod.yml run --rm api yarn migration:run:prod
-            docker compose -f docker/docker-compose.prod.yml up -d
+            docker compose -f docker/docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
             echo "✅ Staging deployment completed!"
 
@@ -219,6 +219,7 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
             cd ${{ secrets.STAGING_APP_PATH }}
             git pull origin ${{ github.ref_name }}
 
@@ -247,7 +248,6 @@ jobs:
             EOF
 
             docker compose -f docker/docker-compose.prod.yml pull
-            docker compose -f docker/docker-compose.prod.yml run --rm api yarn migration:run:prod
-            docker compose -f docker/docker-compose.prod.yml up -d
+            docker compose -f docker/docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
             echo "✅ Production deployment completed!"
