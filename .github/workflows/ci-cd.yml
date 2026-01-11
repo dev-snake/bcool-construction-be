@@ -247,7 +247,8 @@ jobs:
             EOF
 
             # Login to GitHub Container Registry
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+            echo "Logging in to ghcr.io..."
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u dev-snake --password-stdin || echo "Docker login failed!"
 
             docker compose --env-file .env.production -f docker/docker-compose.prod.yml pull
             docker compose --env-file .env.production -f docker/docker-compose.prod.yml up -d --force-recreate
