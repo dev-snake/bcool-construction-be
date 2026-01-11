@@ -12,10 +12,10 @@ import { AuditLogInterceptor } from '../../common/interceptors/audit-log.interce
   controllers: [LogsController],
   providers: [
     LogsService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: AuditLogInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: AuditLogInterceptor,
+    // },
   ],
   exports: [LogsService],
 })

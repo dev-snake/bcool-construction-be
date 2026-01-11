@@ -21,7 +21,7 @@ import { ServicesModule } from './modules/services/services.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { MediaModule } from './modules/media/media.module';
-// import { LogsModule } from './modules/logs/logs.module';
+import { LogsModule } from './modules/logs/logs.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { HealthModule } from './modules/health/health.module';
@@ -54,7 +54,7 @@ import { SystemsModule } from './modules/systems/systems.module';
     BlogModule,
     ContactModule,
     MediaModule,
-    // LogsModule,
+    LogsModule,
     ProjectsModule,
     StatsModule,
     SystemsModule,
