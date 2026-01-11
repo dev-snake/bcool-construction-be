@@ -106,7 +106,7 @@ jobs:
     name: Docker Build & Push
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/dev'
+    if: github.event_name == 'push' && contains(fromJSON('["main", "master", "develop", "dev"]'), github.ref_name) || github.event_name == 'pull_request'
 
     permissions:
       contents: read
@@ -160,7 +160,7 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: docker
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && contains(fromJSON('["main", "master", "develop", "dev"]'), github.ref_name)
     environment: staging
 
     steps:
@@ -208,7 +208,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: docker
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && contains(fromJSON('["main", "master"]'), github.ref_name)
     environment: production
 
     steps:
