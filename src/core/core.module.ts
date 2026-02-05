@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { TerminusModule } from '@nestjs/terminus';
+import { memoryStorage } from 'multer';
 import databaseConfig from '../config/database.config';
 import appConfig from '../config/app.config';
 import redisConfig from '../config/redis.config';
@@ -25,7 +26,10 @@ import { SecurityModule } from './security.module';
     }),
 
     MulterModule.register({
-      // We will use memory storage for S3 uploads
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 50 * 1024 * 1024, // 50MB max file size
+      },
     }),
     TerminusModule,
     DatabaseModule,
