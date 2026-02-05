@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   Query,
+  Res,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
+import type { Response } from 'express';
 import { ContactService } from './contact.service';
 import { Public } from '../../common/decorators/public.decorator';
 import { CheckPermission } from '../../common/decorators/permission.decorator';
@@ -48,6 +50,17 @@ export class ContactController {
   }
 
   // ADMIN
+  @ApiBearerAuth()
+  @CheckPermission({
+    module: SystemModule.CONTACT,
+    action: PermissionAction.VIEW,
+  })
+  @Get('export/excel')
+  @ApiOperation({ summary: 'Export contacts to Excel' })
+  exportContacts(@Query() query: ContactQueryDto, @Res() res: Response) {
+    return this.contactService.exportContacts(res, query);
+  }
+
   @ApiBearerAuth()
   @CheckPermission({
     module: SystemModule.CONTACT,
