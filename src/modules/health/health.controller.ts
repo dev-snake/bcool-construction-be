@@ -4,7 +4,6 @@ import {
   HealthCheck,
   HealthCheckService,
   TypeOrmHealthIndicator,
-  DiskHealthIndicator,
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
 import { Public } from '../../common/decorators/public.decorator';
@@ -16,7 +15,6 @@ export class HealthController {
   constructor(
     private health: HealthCheckService,
     private db: TypeOrmHealthIndicator,
-    private disk: DiskHealthIndicator,
     private memory: MemoryHealthIndicator,
     private redis: RedisHealthIndicator,
   ) {}
@@ -38,13 +36,6 @@ export class HealthController {
 
       // RSS memory check (should not exceed 500MB)
       () => this.memory.checkRSS('memory_rss', 500 * 1024 * 1024),
-
-      // Disk check (at least 10% free space on root)
-      () =>
-        this.disk.checkStorage('disk', {
-          path: '/',
-          thresholdPercent: 0.1,
-        }),
     ]);
   }
 
