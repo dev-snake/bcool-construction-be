@@ -28,6 +28,7 @@ import {
   UpdatePageDto,
 } from './dto/page.dto';
 import { CreateBranchDto, UpdateBranchDto } from './dto/branch.dto';
+import { BulkUpdateSiteSettingsDto } from './dto/site-setting.dto';
 
 @ApiTags('CMS')
 @Controller('cms')
@@ -312,5 +313,31 @@ export class CmsController {
   @ApiOperation({ summary: 'Admin: Delete branch' })
   removeBranch(@Param('id') id: string) {
     return this.cmsService.removeBranch(id);
+  }
+
+  // SITE SETTINGS
+  @Public()
+  @Get('site-settings')
+  @ApiOperation({ summary: 'Get all site settings (public, key-value map)' })
+  getPublicSiteSettings() {
+    return this.cmsService.getPublicSiteSettings();
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.VIEW })
+  @Get('admin/site-settings')
+  @ApiOperation({ summary: 'Admin: Get all site settings with metadata' })
+  getAdminSiteSettings() {
+    return this.cmsService.findAllSiteSettings();
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @CheckPermission({ module: SystemModule.CMS, action: PermissionAction.UPDATE })
+  @Put('site-settings')
+  @ApiOperation({ summary: 'Admin: Bulk update site settings' })
+  bulkUpdateSiteSettings(@Body() dto: BulkUpdateSiteSettingsDto) {
+    return this.cmsService.bulkUpdateSiteSettings(dto.settings);
   }
 }

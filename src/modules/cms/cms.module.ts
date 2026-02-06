@@ -7,10 +7,11 @@ import { PageSection } from './entities/page-section.entity';
 import { Banner } from './entities/banner.entity';
 import { Counter } from './entities/counter.entity';
 import { Branch } from './entities/branch.entity';
+import { SiteSetting } from './entities/site-setting.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Page, PageSection, Banner, Counter, Branch]),
+    TypeOrmModule.forFeature([Page, PageSection, Banner, Counter, Branch, SiteSetting]),
   ],
   controllers: [CmsController],
   providers: [CmsService],
