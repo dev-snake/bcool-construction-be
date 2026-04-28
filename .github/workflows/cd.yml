@@ -28,6 +28,12 @@ jobs:
       - name: Deploy to server
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'ENDSSH'
+            # Kiểm tra nếu thư mục chưa tồn tại thì clone source code về
+            if [ ! -d "${{ secrets.DEPLOY_PATH }}" ]; then
+              echo "Thư mục deploy chưa tồn tại. Tiến hành clone dư án..."
+              git clone https://github.com/${{ github.repository }}.git ${{ secrets.DEPLOY_PATH }}
+            fi
+
             cd ${{ secrets.DEPLOY_PATH }}
 
             # Cập nhật code cấu hình compose.yaml mới nhất
