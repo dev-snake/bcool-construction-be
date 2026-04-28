@@ -6,6 +6,9 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
     ports:
       - "8998:3000"
     depends_on:
@@ -13,13 +16,13 @@ services:
       - redis
 
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: bcool-db
-    restart: always
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE:-bcool_construction}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123456789}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -28,8 +31,8 @@ services:
   redis:
     image: redis:7
     container_name: bcool-redis
-    restart: always
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-supersecret}
     ports:
       - "6379:6379"
 
