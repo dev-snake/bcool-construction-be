@@ -11,6 +11,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
 
   server:
+    image: ghcr.io/dev-snake/bcool-construction-be:latest
     build:
       context: .
     container_name: bcool-be
