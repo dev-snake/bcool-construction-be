@@ -12,8 +12,6 @@ services:
 
   server:
     image: ghcr.io/dev-snake/bcool-construction-be:latest
-    build:
-      context: .
     container_name: bcool-be
     restart: always
     env_file:
@@ -32,9 +30,9 @@ services:
     container_name: bcool-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-bcool_construction}
-      POSTGRES_USER: ${DB_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-123456789}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -45,8 +43,6 @@ services:
     container_name: bcool-redis
     restart: unless-stopped
     command: redis-server --requirepass ${REDIS_PASSWORD:-supersecret}
-    ports:
-      - "6379:6379"
 
 volumes:
   postgres_data:
