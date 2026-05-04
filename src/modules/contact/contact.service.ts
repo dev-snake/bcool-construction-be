@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Response } from 'express';
+import * as ExcelJS from 'exceljs';
 import { BaseService } from '../../common/base/base.service';
 import { Contact } from './entities/contact.entity';
 import { ContactType } from './entities/contact-type.entity';
@@ -163,5 +165,86 @@ export class ContactService extends BaseService<Contact> {
 
   async removeStatus(id: string) {
     return this.statusRepository.delete(id);
+  }
+
+  // EXPORT TO EXCEL
+  async exportContacts(res: Response, query?: ContactQueryDto) {
+    const qb = this.getQueryBuilder('contact');
+
+    if (query?.typeId) {
+      qb.andWhere('contact.typeId = :typeId', { typeId: query.typeId });
+    }
+    if (query?.statusId) {
+      qb.andWhere('contact.statusId = :statusId', { statusId: query.statusId });
+    }
+    if (query?.startDate) {
+      qb.andWhere('contact.createdAt >= :startDate', {
+        startDate: query.startDate,
+      });
+    }
+    if (query?.endDate) {
+      qb.andWhere('contact.createdAt <= :endDate', { endDate: query.endDate });
+    }
+    if (query?.search) {
+      qb.andWhere(
+        '(contact.fullName ILIKE :search OR contact.email ILIKE :search OR contact.phone ILIKE :search)',
+        { search: `%${query.search}%` },
+      );
+    }
+
+    qb.orderBy('contact.createdAt', 'DESC');
+
+    const contacts = await qb.getMany();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Danh sách liên hệ');
+
+    worksheet.columns = [
+      { header: 'STT', key: 'stt', width: 8 },
+      { header: 'Họ và tên', key: 'fullName', width: 25 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Số điện thoại', key: 'phone', width: 18 },
+      { header: 'Loại yêu cầu', key: 'type', width: 20 },
+      { header: 'Nội dung', key: 'message', width: 50 },
+      { header: 'Trạng thái', key: 'status', width: 15 },
+      { header: 'Ghi chú Admin', key: 'adminNote', width: 30 },
+      { header: 'Ngày gửi', key: 'createdAt', width: 20 },
+    ];
+
+    // Style header row
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE0E0E0' },
+    };
+
+    contacts.forEach((contact, index) => {
+      worksheet.addRow({
+        stt: index + 1,
+        fullName: contact.fullName,
+        email: contact.email,
+        phone: contact.phone,
+        type: contact.type?.name || '',
+        message: contact.message,
+        status: contact.status?.name || '',
+        adminNote: contact.adminNote || '',
+        createdAt: contact.createdAt
+          ? new Date(contact.createdAt).toLocaleDateString('vi-VN')
+          : '',
+      });
+    });
+
+    const timestamp = new Date().toISOString().slice(0, 10);
+    const filename = `contacts-${timestamp}.xlsx`;
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+
+    await workbook.xlsx.write(res);
+    res.end();
   }
 }

@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { translateErrorMessage } from '../utils/localization.util';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -32,9 +33,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exceptionResponse['error'].toUpperCase().replace(/\s+/g, '_')
         : 'INTERNAL_SERVER_ERROR';
 
+    const finalMessage = Array.isArray(message)
+      ? message.map((msg) => translateErrorMessage(msg)).join(', ')
+      : translateErrorMessage(message as string);
+
     response.status(status).json({
       code,
-      message: Array.isArray(message) ? message[0] : message,
+      message: finalMessage,
       timestamp: new Date().toISOString(),
     });
   }

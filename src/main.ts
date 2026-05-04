@@ -14,9 +14,15 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: true,
+  });
 
   const configService = app.get(ConfigService);
+
+  // Increase body size limits for file uploads (50MB)
+  app.useBodyParser('json', { limit: '50mb' });
+  app.useBodyParser('urlencoded', { limit: '50mb', extended: true });
 
   // Security
   app.use(

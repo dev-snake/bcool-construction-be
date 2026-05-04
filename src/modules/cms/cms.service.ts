@@ -17,6 +17,8 @@ import {
 } from './dto/page.dto';
 import { Branch } from './entities/branch.entity';
 import { CreateBranchDto, UpdateBranchDto } from './dto/branch.dto';
+import { SiteSetting } from './entities/site-setting.entity';
+import { UpdateSiteSettingDto } from './dto/site-setting.dto';
 
 @Injectable()
 export class CmsService extends BaseService<Page> {
@@ -33,6 +35,8 @@ export class CmsService extends BaseService<Page> {
     private readonly counterRepository: Repository<Counter>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
+    @InjectRepository(SiteSetting)
+    private readonly siteSettingRepository: Repository<SiteSetting>,
   ) {
     super(pageRepository);
   }
@@ -197,5 +201,57 @@ export class CmsService extends BaseService<Page> {
 
   async removeBranch(id: string) {
     return this.branchRepository.delete(id);
+  }
+
+  // SITE SETTINGS
+  async findAllSiteSettings() {
+    return this.siteSettingRepository.find({
+      order: { settingGroup: 'ASC', settingKey: 'ASC' },
+    });
+  }
+
+  async findSiteSettingsByGroup(group: string) {
+    return this.siteSettingRepository.find({
+      where: { settingGroup: group },
+      order: { settingKey: 'ASC' },
+    });
+  }
+
+  async findSiteSettingByKey(key: string) {
+    return this.siteSettingRepository.findOne({
+      where: { settingKey: key },
+    });
+  }
+
+  async updateSiteSetting(key: string, value: string) {
+    const setting = await this.siteSettingRepository.findOne({
+      where: { settingKey: key },
+    });
+    if (!setting) throw new NotFoundException(`Setting '${key}' not found`);
+    setting.settingValue = value;
+    return this.siteSettingRepository.save(setting);
+  }
+
+  async bulkUpdateSiteSettings(updates: UpdateSiteSettingDto[]) {
+    const results: SiteSetting[] = [];
+    for (const update of updates) {
+      const setting = await this.siteSettingRepository.findOne({
+        where: { settingKey: update.settingKey },
+      });
+      if (setting) {
+        setting.settingValue = update.settingValue;
+        results.push(await this.siteSettingRepository.save(setting));
+      }
+    }
+    return results;
+  }
+
+  async getPublicSiteSettings() {
+    const settings = await this.siteSettingRepository.find();
+    const map: Record<string, string> = {};
+    for (const s of settings) {
+      map[s.settingKey] = s.settingValue || '';
+    }
+    return map;
   }
 }
